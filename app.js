@@ -20,7 +20,7 @@ mongoose.connect('mongodb+srv://ENDOR:tJMORaTVs92tSOrI@sopeckoko.tum3a.mongodb.n
   app.use(bodyParser.json());
   
 
-app.use('/api/authenticate', authRoutes);
+app.use('/api', authRoutes);
 
 
 module.exports = app
