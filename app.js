@@ -1,8 +1,8 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = express();
-const authRoutes = require('./routes/auth')
+const userRoutes = require('./routes/user')
+const cartRoute = require('./routes/cart')
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,16 +11,16 @@ app.use((req, res, next) => {
   next();
 });
 
-mongoose.connect('mongodb+srv://ENDOR:tJMORaTVs92tSOrI@sopeckoko.tum3a.mongodb.net/test?authSource=admin&replicaSet=atlas-rgbhto-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true',
+mongoose.connect('mongodb+srv://ENDOR:tJMORaTVs92tSOrI@sopeckoko.tum3a.mongodb.net/LaCourseAuJouet?authSource=admin&replicaSet=atlas-rgbhto-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true',
 { useNewUrlParser: true,
   useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
   
-  app.use(bodyParser.json());
+app.use(express.json());
   
 
-app.use('/api', authRoutes);
-
+app.use('/api', userRoutes);
+app.use('/api', cartRoute);
 
 module.exports = app
