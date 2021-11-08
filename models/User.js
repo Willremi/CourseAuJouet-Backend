@@ -2,13 +2,64 @@ const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
 const userSchema = mongoose.Schema({
-    email:{ type: String, required: true, unique: true},
-    password:{ type: String, required: true },
-    rememberMe:{ type: Boolean, required: false},
+    civility: {
+        type: String,
+        required: true
+    },
+    firstname: {
+        type: String,
+        required: true
+    },
+    lastname: {
+        type: String,
+        required: true
+    },
+    birthday_date: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: Number,
+        required: false
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    registration_date: {
+        type: Date,
+        required: true
+    },
+    account_status: {
+        type: Boolean,
+        required: true
+    },
+    role: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "role_name"
+    }],
+    rememberMe: {
+        type: Boolean,
+        required: false
+    },
     cart: [{
-        product_id: {type: mongoose.Types.ObjectId, required: true},
-        quantity: {type: Number, required: true},
-        price: {type: Number, required: true}
+        product_id: {
+            type: mongoose.Types.ObjectId,
+            required: true
+        },
+        quantity: {
+            type: Number,
+            required: true
+        },
+        price: {
+            type: Number,
+            required: true
+        }
     }]
 })
 
