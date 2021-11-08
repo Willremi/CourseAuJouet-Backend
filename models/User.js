@@ -39,10 +39,6 @@ const userSchema = mongoose.Schema({
         type: Boolean,
         required: true
     },
-    role: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "role_name"
-    }],
     rememberMe: {
         type: Boolean,
         required: false
@@ -50,15 +46,15 @@ const userSchema = mongoose.Schema({
     cart: [{
         product_id: {
             type: mongoose.Types.ObjectId,
-            required: true
+            required: false
         },
         quantity: {
             type: Number,
-            required: true
+            required: false
         },
         price: {
             type: Number,
-            required: true
+            required: false
         }
     }]
 })

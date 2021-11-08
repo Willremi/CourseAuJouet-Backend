@@ -3,13 +3,22 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 exports.register = (req, res, next) => {
+  console.log(req.body)
     bcrypt.hash(req.body.password, 10)
       .then(hash => {
         const user = new User({
+          civility: req.body.civility,
+          firstname:  req.body.firstName,
+          lastname: req.body.lastName,
+          birthday_date: req.body.birthday_date,
+          phone: req.body.phone,
           email: req.body.email,
-          password: hash
+          password: hash,
+          registration_date: Date.now(),
+          account_status: false,
+          rememberMe: false
         });
-        
+        console.log(user)
         user.save()
           .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
           .catch(error => res.status(400).json({ error }));
