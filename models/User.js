@@ -43,18 +43,31 @@ const userSchema = mongoose.Schema({
         type: Boolean,
         required: false
     },
+    role: [{
+        _id: {
+            type: mongoose.Types.ObjectId,
+            required: true
+        },
+        role_name: {
+            type: String,
+            required: true
+        }
+    }],
+    confirmationCode: { 
+        type: String, 
+        unique: true },
     cart: [{
         product_id: {
             type: mongoose.Types.ObjectId,
-            required: false
+            required: true
         },
         quantity: {
             type: Number,
-            required: false
+            required: true
         },
         price: {
             type: Number,
-            required: false
+            required: true
         }
     }]
 })
