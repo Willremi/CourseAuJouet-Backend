@@ -3,6 +3,7 @@ const Role = require('../models/role');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const confirmationCode = require('../middlewares/confirmationCode');
+
 const {
   sendConfirmationEmail
 } = require('../middlewares/nodemailer.config');
@@ -83,8 +84,9 @@ exports.verifyUser = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
+  console.log(req.body)
   User.findOne({
-      username: req.body.username
+      email: req.body.email
     })
     .then(user => {
       if (!user) {
@@ -99,12 +101,16 @@ exports.login = (req, res, next) => {
               error: 'Mot de passe incorrect !'
             });
           }
+          
           res.status(200).json({
-            userId: user._id,
-            token: jwt.sign({
-                userId: user._id
+            
+            id_token: jwt.sign({
+                userId: user._id,
+                email: user.email,
+                role: user.role,
+                rememberMe: user.rememberMe
               },
-              'RANDOM_TOKEN_SECRET', {
+              confirmationCode.generateRandomCode(25), {
                 expiresIn: '24h'
               }
             )
