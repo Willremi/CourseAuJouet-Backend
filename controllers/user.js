@@ -34,7 +34,7 @@ exports.register = (req, res, next) => {
       user.save()
         .then(() => {
 
-          res.status(201).json({
+          res.status(201).send({
             message: "Vous avez été enregistré, verifiez vos e-mail afin de confirmer votre inscription !"
           })
           sendConfirmationEmail(user.firstname, user.email, user.confirmationCode)
@@ -53,7 +53,7 @@ exports.verifyUser = (req, res, next) => {
     confirmationCode: req.params.confirmationCode,
   })
     .then((user) => {
-      console.log(user)
+      
       if (!user) {
         return res.status(404).send({ message: "Utilisateur non trouvé !." });
       }
@@ -68,6 +68,7 @@ exports.verifyUser = (req, res, next) => {
           _id: role._id,
           role_name: role.role_name
       }] 
+      return res.status(200).send({ message : "Veuillez vous logger" })
       })
       .catch(err => res.status(500).send({ err }))
       
