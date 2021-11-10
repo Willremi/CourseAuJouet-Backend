@@ -2,19 +2,19 @@ const User = require('../models/user');
 const Role = require('../models/role');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const confirmationCode = require('../middlewares/confirmationCode');
+const confirmationCode = require('../middlewares/generateRandomCode');
 
 const {
-  sendConfirmationEmail
+  sendConfirmationEmail, sendConfirmationResetPassword
 } = require('../middlewares/nodemailer.config');
 
 exports.register = (req, res, next) => {
   const token = jwt.sign({
     email: req.body.email
   }, confirmationCode.generateRandomCode(25), {
-    expiresIn: '15min'
+    expiresIn: '24h'
   });
-  
+
   bcrypt.hash(req.body.password, 10)
     .then(hash => {
       const user = new User({
@@ -29,7 +29,7 @@ exports.register = (req, res, next) => {
         account_status: false,
         rememberMe: false,
         confirmationCode: token,
-        
+        reset_password: null
       });
 
       user.save()
@@ -50,41 +50,54 @@ exports.register = (req, res, next) => {
 };
 
 exports.verifyUser = (req, res, next) => {
+  
   User.findOne({
-    confirmationCode: req.params.confirmationCode,
-  })
+      confirmationCode: req.params.confirmationCode,
+    })
     .then((user) => {
-      
+
       if (!user) {
-        return res.status(404).send({ message: "Utilisateur non trouvé !." });
+        return res.status(404).send({
+          message: "Utilisateur non trouvé !."
+        });
       }
       user.confirmationCode = null;
       user.account_status = true;
-      Role.findOne({role_name: "CUSTOMER"})
-      .then((role) => {
-        if(!role) {
-          return res.statut(404).send({ message : "Rôle introuvable !"})
-        }
-        user.role = [{
-          _id: role._id,
-          role_name: role.role_name
-      }] 
-      return res.status(200).send({ message : "Veuillez vous logger" })
-      })
-      .catch(err => res.status(500).send({ err }))
-      
-      user.save((err) => {
-        if (err) {
-          res.status(500).send({ message: err });
+      Role.findOne({
+          role_name: "CUSTOMER"
+        })
+        .then((role) => {
+          if (!role) {
+            return res.statut(404).send({
+              message: "Rôle introuvable !"
+            })
+          }
+          user.role = [{
+            _id: role._id,
+            role_name: role.role_name
+          }]
+          return res.status(200).send({
+            message: "Veuillez vous logger"
+          })
+        })
+        .catch(err => res.status(500).send({
+          err
+        }))
+
+      user.save((response) => {
+        if (response) {
+          res.status(500).send({
+            message: response
+          });
           return;
         }
       });
-    })
-    .catch((e) => console.log("error", e));
+     })
+    .catch((err) => console.log("error", err));
 };
 
 exports.login = (req, res, next) => {
-  console.log(req.body)
+  
   User.findOne({
       email: req.body.email
     })
@@ -101,9 +114,9 @@ exports.login = (req, res, next) => {
               error: 'Mot de passe incorrect !'
             });
           }
-          
+
           res.status(200).json({
-            
+
             id_token: jwt.sign({
                 userId: user._id,
                 email: user.email,
@@ -124,3 +137,43 @@ exports.login = (req, res, next) => {
       error
     }));
 };
+
+exports.sendEmailResetPassword = (req, res, next) => {
+  
+  const token = jwt.sign({
+    email: req.body.email
+  }, confirmationCode.generateRandomCode(25), {
+    expiresIn: '24h'
+  });
+  User.findOne({
+      email: req.body.email
+    })
+    .then((user) => {
+      
+      if (!user) {
+        return res.status(401).json({
+          error: 'Utilisateur non trouvé !'
+        });
+      }
+      user.reset_password = token
+      
+      user.save()
+        .then(() => {
+
+          res.status(201).send({
+            message: "Un E-mail de réinitialisation de mot de passe vous a été envoyé, vérifiez vos emails"
+          })
+          sendConfirmationResetPassword( user.email, user.reset_password)
+        })
+        .catch(error => res.status(400).json({
+          error
+        }));
+      
+    })
+    .catch((err) => {
+      res.status(500).json({
+        err
+      })
+
+    })
+}

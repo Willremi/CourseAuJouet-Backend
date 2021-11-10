@@ -53,9 +53,14 @@ const userSchema = mongoose.Schema({
             required: true
         }
     }],
-    confirmationCode: { 
-        type: String, 
-        unique: true },
+    confirmationCode: {
+        type: String,
+        unique: true
+    },
+    reset_password: {
+        type: String,
+        unique: true
+    },
     cart: [{
         product_id: {
             type: mongoose.Types.ObjectId,
