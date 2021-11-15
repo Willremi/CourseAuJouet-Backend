@@ -6,5 +6,5 @@ router.post('/register', userCtrl.register);
 router.post('/authenticate', userCtrl.login);
 router.get('/confirm_register/:confirmationCode', userCtrl.verifyUser);
 router.post('/reset-password', userCtrl.sendEmailResetPassword);
-
-module.exports = router ;
+router.post('/valid-reset-password/:id', userCtrl.validResetPassword);
+module.exports = router;

@@ -5,11 +5,12 @@ const jwt = require('jsonwebtoken');
 const confirmationCode = require('../middlewares/generateRandomCode');
 
 const {
-  sendConfirmationEmail, sendConfirmationResetPassword
+  sendConfirmationEmail,
+  sendConfirmationResetPassword
 } = require('../middlewares/nodemailer.config');
 
 exports.register = (req, res, next) => {
-  
+
   const token = jwt.sign({
     email: req.body.email
   }, confirmationCode.generateRandomCode(25), {
@@ -30,12 +31,12 @@ exports.register = (req, res, next) => {
         account_status: false,
         rememberMe: false,
         confirmationCode: token,
-        reset_password: "1234"
-      }); 
-      
+        reset_password: token
+      });
+
       user.save()
         .then(() => {
-         
+
           res.status(201).json({
             message: "Vous avez été enregistré, verifiez vos e-mail afin de confirmer votre inscription !"
           })
@@ -51,50 +52,27 @@ exports.register = (req, res, next) => {
 };
 
 exports.verifyUser = (req, res, next) => {
-  
-  User.findOne({
-      confirmationCode: req.params.confirmationCode,
-    })
-    .then((user) => {
-      console.log(user)
-      if (!user) {
-        return res.status(404).send({
-          message: "Utilisateur non trouvé !."
-        });
-      }
-      user.confirmationCode = null;
-      user.account_status = true;
-      Role.findOne({
-          role_name: "CUSTOMER"
-        })
-        .then((role) => {
-          console.log("etape fin :",user)
-          if (!role) {
-            return res.statut(404).send({
-              message: "Rôle introuvable !"
-            })
-          }
-          user.role = [{
-            _id: role._id,
-            role_name: role.role_name
-          }]
-          return res.status(200).send({
-            message: "Veuillez vous logger"
-          })
-        })
-        .catch(err => res.status(500).send({
-          err
-        }))
 
-      user.save()
-      .then((res) => console.log("OK"))
-      .catch((err) => console.log(err));
-       })
-    .catch((err) => console.log("error", err));
-};
+  User.findOneAndUpdate({
+      confirmationCode: req.params.confirmationCode
+    }, {
+      account_status: true,
+      role: [{
+        role_name: "CUSTOMER"
+      }]
+    })
+    .then(() => {
+      res.status(200).json({
+        message: "Veuillez vous logger"
+      })
+    })
+    .catch(error => res.status(500).json({
+      error
+    }))
+}
 
 exports.login = (req, res, next) => {
-  
+  const token = confirmationCode.generateRandomCode(25) // a mettre lorsque l'on saura comment le mettre dans auth.js
   User.findOne({
       email: req.body.email
     })
@@ -120,7 +98,7 @@ exports.login = (req, res, next) => {
                 role: user.role,
                 rememberMe: user.rememberMe
               },
-              confirmationCode.generateRandomCode(25), {
+              'RANDOM_TOKEN_SECRET', {
                 expiresIn: '24h'
               }
             )
@@ -136,41 +114,53 @@ exports.login = (req, res, next) => {
 };
 
 exports.sendEmailResetPassword = (req, res, next) => {
-  
+
   const token = jwt.sign({
     email: req.body.email
   }, confirmationCode.generateRandomCode(25), {
     expiresIn: '24h'
   });
-  User.findOne({
+
+  User.findOneAndUpdate({
       email: req.body.email
+    }, {
+      reset_password: token
     })
     .then((user) => {
-      
-      if (!user) {
-        return res.status(401).json({
-          error: 'Utilisateur non trouvé !'
-        });
-      }
-      user.reset_password = token
-      
-      user.save()
-        .then(() => {
-
-          res.status(201).send({
-            message: "Un E-mail de réinitialisation de mot de passe vous a été envoyé, vérifiez vos emails"
-          })
-          sendConfirmationResetPassword( user.email, user.reset_password)
-        })
-        .catch(error => res.status(400).json({
-          error
-        }));
-      
-    })
-    .catch((err) => {
-      res.status(500).json({
-        err
+      sendConfirmationResetPassword(user.email, token)
+      res.status(200).json({
+        message: "Un email vous a été envoyé"
       })
-
     })
+    .catch(error => res.status(500).json({
+      error
+    }))
+}
+
+exports.validResetPassword = (req, res, next) => {
+  console.log(req.params.id)
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => {
+      User.findOneAndUpdate({
+          reset_password: req.params.id
+        }, {
+          password: hash,
+          reset_password: hash
+        })
+        .then((user) => {
+          if(!user){
+            return res.status(404).json({ message: "Utilisateur inconnu !"})
+          }
+          res.status(200).json({
+            message: "Mot de passe modifié"
+          })
+        })
+        .catch(error => res.status(500).json({
+          error
+        }))
+    })
+    .catch(error => res.status(500).json({
+      error
+    }))
+
 }

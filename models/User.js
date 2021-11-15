@@ -44,10 +44,6 @@ const userSchema = mongoose.Schema({
         required: false
     },
     role: [{
-        _id: {
-            type: mongoose.Types.ObjectId,
-            required: true
-        },
         role_name: {
             type: String,
             required: true
