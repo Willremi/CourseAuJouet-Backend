@@ -9,6 +9,7 @@ const {
 } = require('../middlewares/nodemailer.config');
 
 exports.register = (req, res, next) => {
+  
   const token = jwt.sign({
     email: req.body.email
   }, confirmationCode.generateRandomCode(25), {
@@ -29,13 +30,13 @@ exports.register = (req, res, next) => {
         account_status: false,
         rememberMe: false,
         confirmationCode: token,
-        reset_password: null
-      });
-
+        reset_password: "1234"
+      }); 
+      
       user.save()
         .then(() => {
-
-          res.status(201).send({
+         
+          res.status(201).json({
             message: "Vous avez été enregistré, verifiez vos e-mail afin de confirmer votre inscription !"
           })
           sendConfirmationEmail(user.firstname, user.email, user.confirmationCode)
@@ -55,7 +56,7 @@ exports.verifyUser = (req, res, next) => {
       confirmationCode: req.params.confirmationCode,
     })
     .then((user) => {
-
+      console.log(user)
       if (!user) {
         return res.status(404).send({
           message: "Utilisateur non trouvé !."
@@ -67,6 +68,7 @@ exports.verifyUser = (req, res, next) => {
           role_name: "CUSTOMER"
         })
         .then((role) => {
+          console.log("etape fin :",user)
           if (!role) {
             return res.statut(404).send({
               message: "Rôle introuvable !"
@@ -84,15 +86,10 @@ exports.verifyUser = (req, res, next) => {
           err
         }))
 
-      user.save((response) => {
-        if (response) {
-          res.status(500).send({
-            message: response
-          });
-          return;
-        }
-      });
-     })
+      user.save()
+      .then((res) => console.log("OK"))
+      .catch((err) => console.log(err));
+       })
     .catch((err) => console.log("error", err));
 };
 

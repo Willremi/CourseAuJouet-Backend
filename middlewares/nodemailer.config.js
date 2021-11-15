@@ -5,7 +5,7 @@ const user = config.user;
 const pass = config.pass;
 
 const transport = nodemailer.createTransport({
-  service: "Hotmail",
+  service: "gmail",
   auth: {
     user: user,
     pass: pass,
