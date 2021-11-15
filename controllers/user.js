@@ -115,7 +115,7 @@ exports.login = (req, res, next) => {
 };
 
 exports.sendEmailResetPassword = (req, res, next) => {
-console.log(req.body)
+
   const token = jwt.sign({
     email: req.body.email.toLowerCase()
   }, confirmationCode.generateRandomCode(25), {
