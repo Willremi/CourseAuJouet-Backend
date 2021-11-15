@@ -26,7 +26,7 @@ module.exports.sendConfirmationEmail = (name, email, confirmationCode) => {
     }).catch(err => console.log(err));
   };
 
-  module.exports.sendConfirmationResetPassword = ( email, token) => {
+  module.exports.sendConfirmationResetPassword = (email, token) => {
     
     transport.sendMail({
       from: user,

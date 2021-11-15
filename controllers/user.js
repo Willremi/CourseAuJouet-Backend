@@ -25,7 +25,7 @@ exports.register = (req, res, next) => {
         lastname: req.body.lastName,
         birthday_date: req.body.birthday_date,
         phone: req.body.phone,
-        email: req.body.email,
+        email: req.body.email.toLowerCase(),
         password: hash,
         registration_date: Date.now(),
         account_status: false,
@@ -40,7 +40,7 @@ exports.register = (req, res, next) => {
           res.status(201).json({
             message: "Vous avez été enregistré, verifiez vos e-mail afin de confirmer votre inscription !"
           })
-          sendConfirmationEmail(user.firstname, user.email, user.confirmationCode)
+          sendConfirmationEmail(user.firstname, user.email.toLowerCase(), user.confirmationCode)
         })
         .catch(error => res.status(400).json({
           error
@@ -57,6 +57,7 @@ exports.verifyUser = (req, res, next) => {
       confirmationCode: req.params.confirmationCode
     }, {
       account_status: true,
+      confirmationCode: null,
       role: [{
         role_name: "CUSTOMER"
       }]
@@ -114,20 +115,20 @@ exports.login = (req, res, next) => {
 };
 
 exports.sendEmailResetPassword = (req, res, next) => {
-
+console.log(req.body)
   const token = jwt.sign({
-    email: req.body.email
+    email: req.body.email.toLowerCase()
   }, confirmationCode.generateRandomCode(25), {
     expiresIn: '24h'
   });
 
   User.findOneAndUpdate({
-      email: req.body.email
+      email: req.body.email.toLowerCase()
     }, {
       reset_password: token
     })
     .then((user) => {
-      sendConfirmationResetPassword(user.email, token)
+      sendConfirmationResetPassword(user.email.toLowerCase(), token)
       res.status(200).json({
         message: "Un email vous a été envoyé"
       })
@@ -138,7 +139,7 @@ exports.sendEmailResetPassword = (req, res, next) => {
 }
 
 exports.validResetPassword = (req, res, next) => {
-  console.log(req.params.id)
+  
   bcrypt.hash(req.body.password, 10)
     .then((hash) => {
       User.findOneAndUpdate({
