@@ -2,10 +2,12 @@ const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
     try{
-        const token = req.headers.authorization.split(' ')[1];
-        const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-        const userId = decodedToken.userId;
-        if (req.body.userId && req.body.userId !== userId ) {
+        const token = req.headers.authorization.split(' ')[1];;
+        const payload = jwt.decode(token , 'RANDOM_SECRET_TOKEN');
+        console.log(payload);
+        // on vérifie que le payload JWT renvoi bien un ID 
+        // et que l'expiration n'est pas dépassée
+        if (!payload.userId || Date.now() >= payload.exp * 1000 ) {
             throw 'user ID non valable';
         } else {
             next();

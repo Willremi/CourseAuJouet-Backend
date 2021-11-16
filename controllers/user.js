@@ -8,6 +8,7 @@ const {
   sendConfirmationEmail
 } = require('../middlewares/nodemailer.config');
 
+
 exports.register = (req, res, next) => {
   const token = jwt.sign({
     email: req.body.email
@@ -49,42 +50,26 @@ exports.register = (req, res, next) => {
     }));
 };
 
+
 exports.verifyUser = (req, res, next) => {
-  User.findOne({
-    confirmationCode: req.params.confirmationCode,
+
+  User.findOneAndUpdate( {confirmationCode: req.params.confirmationCode},
+     {account_status : true,
+      role: [{
+        role_name: "CUSTOMER"
+      }]
   })
-    .then((user) => {
-      
-      if (!user) {
-        return res.status(404).send({ message: "Utilisateur non trouvé !." });
-      }
-      user.confirmationCode = null;
-      user.account_status = true;
-      Role.findOne({role_name: "CUSTOMER"})
-      .then((role) => {
-        if(!role) {
-          return res.statut(404).send({ message : "Rôle introuvable !"})
-        }
-        user.role = [{
-          _id: role._id,
-          role_name: role.role_name
-      }] 
-      return res.status(200).send({ message : "Veuillez vous logger" })
-      })
-      .catch(err => res.status(500).send({ err }))
-      
-      user.save((err) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-      });
-    })
-    .catch((e) => console.log("error", e));
-};
+  .then(() => {
+    res.status(200).json({ message : "Veuillez vous logger"})
+  })
+  .catch( error => res.status(500).json({ error }))
+}
+
+
 
 exports.login = (req, res, next) => {
-  console.log(req.body)
+  const remember = req.params.rememberMe
+  console.log(req.body);
   User.findOne({
       email: req.body.email
     })
@@ -110,8 +95,8 @@ exports.login = (req, res, next) => {
                 role: user.role,
                 rememberMe: user.rememberMe
               },
-              confirmationCode.generateRandomCode(25), {
-                expiresIn: '24h'
+              'RANDOM_TOKEN_SECRET' ,{
+                expiresIn: '24h' 
               }
             )
           });
@@ -124,3 +109,25 @@ exports.login = (req, res, next) => {
       error
     }));
 };
+
+exports.test = (req, res, next) => {
+  const stuff = [
+    {
+      _id: 'oeihfzeoi',
+      title: 'Mon premier objet',
+      description: 'Les infos de mon premier objet',
+      imageUrl: 'https://cdn.pixabay.com/photo/2019/06/11/18/56/camera-4267692_1280.jpg',
+      price: 4900,
+      userId: 'qsomihvqios',
+    },
+    {
+      _id: 'oeihfzeomoihi',
+      title: 'Mon deuxième objet',
+      description: 'Les infos de mon deuxième objet',
+      imageUrl: 'https://cdn.pixabay.com/photo/2019/06/11/18/56/camera-4267692_1280.jpg',
+      price: 2900,
+      userId: 'qsomihvqios',
+    },
+  ];
+  res.status(200).json(stuff);
+}
