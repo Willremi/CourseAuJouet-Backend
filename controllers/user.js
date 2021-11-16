@@ -68,8 +68,7 @@ exports.verifyUser = (req, res, next) => {
 
 
 exports.login = (req, res, next) => {
-  const remember = req.params.rememberMe
-  console.log(req.body);
+  remember = req.body.rememberMe
   User.findOne({
       email: req.body.email
     })
@@ -93,10 +92,10 @@ exports.login = (req, res, next) => {
                 userId: user._id,
                 email: user.email,
                 role: user.role,
-                rememberMe: user.rememberMe
+                rememberMe: req.body.rememberMe
               },
               'RANDOM_TOKEN_SECRET' ,{
-                expiresIn: '24h' 
+                expiresIn: `${remember ? '30d' : '1h'}`
               }
             )
           });
@@ -109,25 +108,3 @@ exports.login = (req, res, next) => {
       error
     }));
 };
-
-exports.test = (req, res, next) => {
-  const stuff = [
-    {
-      _id: 'oeihfzeoi',
-      title: 'Mon premier objet',
-      description: 'Les infos de mon premier objet',
-      imageUrl: 'https://cdn.pixabay.com/photo/2019/06/11/18/56/camera-4267692_1280.jpg',
-      price: 4900,
-      userId: 'qsomihvqios',
-    },
-    {
-      _id: 'oeihfzeomoihi',
-      title: 'Mon deuxième objet',
-      description: 'Les infos de mon deuxième objet',
-      imageUrl: 'https://cdn.pixabay.com/photo/2019/06/11/18/56/camera-4267692_1280.jpg',
-      price: 2900,
-      userId: 'qsomihvqios',
-    },
-  ];
-  res.status(200).json(stuff);
-}
