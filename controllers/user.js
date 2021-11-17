@@ -7,6 +7,7 @@ const confirmationCode = require('../middlewares/confirmationCode');
 const {
   sendConfirmationEmail
 } = require('../middlewares/nodemailer.config');
+const { findOneAndUpdate } = require('../models/user');
 
 
 exports.register = (req, res, next) => {
@@ -68,10 +69,9 @@ exports.verifyUser = (req, res, next) => {
 
 
 exports.login = (req, res, next) => {
+  // attention ne pas update avant 
   remember = req.body.rememberMe
-  User.findOne({
-      email: req.body.email
-    })
+  User.findOneAndUpdate({email: req.body.email, rememberMe: remember})
     .then(user => {
       if (!user) {
         return res.status(401).json({
@@ -92,7 +92,7 @@ exports.login = (req, res, next) => {
                 userId: user._id,
                 email: user.email,
                 role: user.role,
-                rememberMe: req.body.rememberMe
+                rememberMe: remember
               },
               'RANDOM_TOKEN_SECRET' ,{
                 expiresIn: `${remember ? '30d' : '1h'}`
