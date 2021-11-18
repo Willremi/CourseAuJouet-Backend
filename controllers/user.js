@@ -69,7 +69,6 @@ exports.verifyUser = (req, res, next) => {
 
 
 exports.login = (req, res, next) => {
-  // attention ne pas update avant 
   remember = req.body.rememberMe
   User.findOneAndUpdate({email: req.body.email, rememberMe: remember})
     .then(user => {
