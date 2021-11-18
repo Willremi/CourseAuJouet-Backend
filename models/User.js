@@ -44,18 +44,19 @@ const userSchema = mongoose.Schema({
         required: false
     },
     role: [{
-        _id: {
-            type: mongoose.Types.ObjectId,
-            required: true
-        },
         role_name: {
             type: String,
             required: true
         }
     }],
-    confirmationCode: { 
-        type: String, 
-        unique: true },
+    confirmationCode: {
+        type: String,
+        unique: true
+    },
+    reset_password: {
+        type: String,
+        unique: true
+    },
     cart: [{
         product_id: {
             type: mongoose.Types.ObjectId,
