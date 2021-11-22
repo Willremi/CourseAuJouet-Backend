@@ -90,7 +90,7 @@ exports.login = (req, res, next) => {
               error: 'Mot de passe incorrect !'
             });
           }
-          console.log(user)
+          
           res.status(200).json({
 
             id_token: jwt.sign({
