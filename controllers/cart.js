@@ -1,5 +1,5 @@
 const User = require('../models/user');
-// const ObjectID = require('mongoose').Types.ObjectId;
+const ObjectID = require('mongoose').Types.ObjectId;
 
 exports.getCreateCart = async (req, res, next) => {
     try {
@@ -31,62 +31,52 @@ exports.getAllProductInCart = (req, res, next) => {
         .catch(error => res.status(500).json({ error }))
 }
 
-exports.getEditCart = async (req, res) => {
-    User.findByIdAndUpdate(req.params.id, 
-        {$set: {
-            cart: {quantity:req.body.quantity, price: req.body.price, _id:req.body.productId}
-        }},
-        { new: true },
-        (err, docs) => {
-            if (!err) res.send(docs);
-            else console.log("Update error : " + err);
-        }
-        )
-    // try {
+exports.getShowPanier = (req, res) => {
 
-    //     User.findById(req.params.id,
-    //         (err, docs) => {
-    //             const product = docs.cart.find((produit) => produit._id.equals(req.body.productId));
-
-    //             if (!product) return res.status(404).send('Product Not Found');
-
-    //             product.quantity = req.body.quantity;
-    //             product.price = req.body.price;
-                
-    //             return res.status(200).send(docs);
-
-    //             //    return docs.save((err) => {
-    //             //         if(!err) return res.status(200).send(docs);
-    //             //         return res.status(500).send(err);
-    //             //     })
-    //         }
-            
-            
-    //     );
-    // } catch (err) {
-    //     return res.status(400).send(err);
-    // }
-}
-
-exports.getRemoveCart = (req, res) => {
     try {
-        return User.findByIdAndUpdate(
-            req.params.id,
-            {
-                $pull: {
-                    cart: {
-                        _id: req.body.productId
-                    }
-                }
-            },
-            { new: true },
-            (err, docs) => {
-                if (!err) return res.send(docs)
-                else return res.status(400).send(err)
+        User.findById(req.params.id,
+            () => {
+                // return res.status(200).json(docs)
+                User.aggregate([
+                    {
+                        '$match': {
+                            _id: ObjectID(req.params.id)
+                        }
+                    }, {
+                        '$project': {
+                            'firstname': 1,
+                            'lastname': 1,
+                            'email': 1
+                        }
+                    }, {
+                        $lookup: {
+                            'from': 'stores', 
+                            'let': {
+                              'product': '_id'
+                            }, 
+                            'pipeline': [
+                              {
+                                '$project': {
+                                  'product.product_name': 1, 
+                                  'product.price': 1, 
+                                  'product.stock': 1, 
+                                  'product.category': 1, 
+                                  'product._id': 1, 
+                                  '_id': 1
+                                }
+                              }
+                            ], 
+                            'as': 'panier'
+                          }
+                    }]).exec((err, data) => {
+                        if (err) return res.status(400).send(err);
+                        return res.status(200).send(data);
+                    })
             }
         )
 
     } catch (err) {
         return res.status(400).send(err);
     }
+
 }

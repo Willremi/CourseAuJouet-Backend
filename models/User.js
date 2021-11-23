@@ -58,10 +58,10 @@ const userSchema = mongoose.Schema({
         unique: true
     },
     cart: [{
-        // product_id: {
-        //     type: mongoose.Types.ObjectId,
-        //     required: true
-        // },
+        product_id: {
+            type: mongoose.Types.ObjectId,
+            required: true
+        },
         quantity: {
             type: Number,
             required: true
