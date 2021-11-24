@@ -14,26 +14,33 @@ exports.getAllProductInCart = (req, res, next) => {
 exports.AddToCart = (req, res, next) => {
     const cart = []
 
-    Store.findOne()
-        .then(store => {
-            store.product.map((toArray) => {
-                if (toArray._id.valueOf() === req.body.id.valueOf()) {
-                    return cart.push(toArray)
-                }
-            })
-
-            User.findOneAndUpdate({ _id: req.body.userid },
-                {
-                    cart: cart
-                })
-                .then(() => {
-                    res.status(200).json({ message: "Le produit a été ajouté dans le panier" })
-                })
-                .catch(error => res.status(500).json({ error }))
+    User.findOne({_id: req.body.userid})
+    .then((user) => {
+        user.cart.map((inCart) => {
+            cart.push(inCart)
         })
-        .catch(error => res.status(500).json({ error }))
-
+        Store.findOne()
+    .then(store => {
+        store.product.map((toArray) => {
+            if(toArray._id.valueOf() === req.body.id.valueOf()){
+               return cart.push(toArray)   
+        }
+    })  
+        
+        User.findOneAndUpdate( {_id: req.body.userid},
+            {
+             cart: cart
+         })
+         .then(() => {
+           res.status(200).json({ message : "Le produit a été ajouté dans le panier"})
+         })
+         .catch( error => res.status(500).json({ error }))
+    })
+    .catch( error => res.status(500).json({error}))
+    })
+    .catch(error => res.status(500).json({ error }))
 }
+
 
 
 // exports.getShowPanier = (req, res) => {
