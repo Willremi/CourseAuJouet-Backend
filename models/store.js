@@ -8,11 +8,6 @@ const storeSchema = mongoose.Schema({
         required: true
     },
     product: [{
-        product_code: {
-            type: mongoose.Types.ObjectId,
-            required: true,
-            unique: true
-        },
         product_name: {
             type: String,
             required: true

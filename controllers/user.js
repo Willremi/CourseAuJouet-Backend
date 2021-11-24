@@ -1,14 +1,12 @@
 const User = require('../models/user');
-const Role = require('../models/role');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const confirmationCode = require('../middlewares/generateRandomCode');
-
 const {
   sendConfirmationEmail,
   sendConfirmationResetPassword
 } = require('../middlewares/nodemailer.config');
-const { findOneAndUpdate } = require('../models/user');
+
 
 
 exports.register = (req, res, next) => {
@@ -71,10 +69,12 @@ exports.verifyUser = (req, res, next) => {
 
 
 exports.login = (req, res, next) => {
+
   // attention ne pas update avant 
-  remember = req.body.rememberMe
-  User.findOneAndUpdate({email: req.body.email, rememberMe: remember})
+  const remember = req.body.rememberMe
+  User.findOneAndUpdate({email: req.body.email}, {rememberMe: remember})
     .then(user => {
+      
       if (!user) {
         return res.status(401).json({
           error: 'Utilisateur non trouvé !'
