@@ -2,27 +2,6 @@ const User = require('../models/user');
 const ObjectID = require('mongoose').Types.ObjectId;
 const Store = require('../models/store')
 
-exports.getCreateCart = async (req, res, next) => {
-    try {
-        User.findByIdAndUpdate(req.params.id,
-            {
-                $push: {
-                    cart: {
-                        quantity: req.body.quantity,
-                        price: req.body.price
-                    }
-                }
-            },
-            { new: true },
-            (err, docs) => {
-                if (!err) return res.send(docs);
-                else return res.status(400).send(err);
-            })
-    } catch (err) {
-        return res.status(400).send(err);
-    }
-}
-
 exports.getAllProductInCart = (req, res, next) => {
     User.findOne({ _id: req.params.id })
         .then(user => {
@@ -36,23 +15,23 @@ exports.AddToCart = (req, res, next) => {
     const cart = []
 
     Store.findOne()
-    .then(store => {
-        store.product.map((toArray) => {
-            if(toArray._id.valueOf() === req.body.id.valueOf()){
-               return cart.push(toArray)
-        }
-    })
+        .then(store => {
+            store.product.map((toArray) => {
+                if (toArray._id.valueOf() === req.body.id.valueOf()) {
+                    return cart.push(toArray)
+                }
+            })
 
-        User.findOneAndUpdate( {_id: req.body.userid},
-            {
-             cart: cart
-         })
-         .then(() => {
-           res.status(200).json({ message : "Le produit a été ajouté dans le panier"})
-         })
-         .catch( error => res.status(500).json({ error }))
-    })
-    .catch( error => res.status(500).json({error}))
+            User.findOneAndUpdate({ _id: req.body.userid },
+                {
+                    cart: cart
+                })
+                .then(() => {
+                    res.status(200).json({ message: "Le produit a été ajouté dans le panier" })
+                })
+                .catch(error => res.status(500).json({ error }))
+        })
+        .catch(error => res.status(500).json({ error }))
 
 }
 
@@ -76,22 +55,22 @@ exports.AddToCart = (req, res, next) => {
 //                         }
 //                     }, {
 //                         $lookup: {
-//                             'from': 'stores', 
+//                             'from': 'stores',
 //                             'as': 'panier',
 //                             'let': {
 //                               'product': '_id'
-//                             }, 
+//                             },
 //                             'pipeline': [
 //                               {
 //                                 '$project': {
-//                                   'product.product_name': 1, 
-//                                   'product.price': 1, 
-//                                   'product._id': 1, 
+//                                   'product.product_name': 1,
+//                                   'product.price': 1,
+//                                   'product._id': 1,
 //                                   '_id': 1
 //                                 }
 //                               }
-//                             ], 
-//                           },                           
+//                             ],
+//                           },
 //                     }, {
 //                         '$unwind': {
 //                           'path': '$panier'
