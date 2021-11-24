@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const ObjectID = require('mongoose').Types.ObjectId;
+const Store = require('../models/store')
 
 exports.getCreateCart = async (req, res, next) => {
     try {
@@ -31,52 +32,88 @@ exports.getAllProductInCart = (req, res, next) => {
         .catch(error => res.status(500).json({ error }))
 }
 
-exports.getShowPanier = (req, res) => {
+exports.AddToCart = (req, res, next) => {
+    const cart = []
 
-    try {
-        User.findById(req.params.id,
-            () => {
-                // return res.status(200).json(docs)
-                User.aggregate([
-                    {
-                        '$match': {
-                            _id: ObjectID(req.params.id)
-                        }
-                    }, {
-                        '$project': {
-                            'firstname': 1,
-                            'lastname': 1,
-                            'email': 1
-                        }
-                    }, {
-                        $lookup: {
-                            'from': 'stores', 
-                            'let': {
-                              'product': '_id'
-                            }, 
-                            'pipeline': [
-                              {
-                                '$project': {
-                                  'product.product_name': 1, 
-                                  'product.price': 1, 
-                                  'product.stock': 1, 
-                                  'product.category': 1, 
-                                  'product._id': 1, 
-                                  '_id': 1
-                                }
-                              }
-                            ], 
-                            'as': 'panier'
-                          }
-                    }]).exec((err, data) => {
-                        if (err) return res.status(400).send(err);
-                        return res.status(200).send(data);
-                    })
-            }
-        )
+    Store.findOne()
+    .then(store => {
+        store.product.map((toArray) => {
+            if(toArray._id.valueOf() === req.body.id.valueOf()){
+               return cart.push(toArray)
+        }
+    })
 
-    } catch (err) {
-        return res.status(400).send(err);
-    }
+        User.findOneAndUpdate( {_id: req.body.userid},
+            {
+             cart: cart
+         })
+         .then(() => {
+           res.status(200).json({ message : "Le produit a été ajouté dans le panier"})
+         })
+         .catch( error => res.status(500).json({ error }))
+    })
+    .catch( error => res.status(500).json({error}))
 
 }
+
+
+// exports.getShowPanier = (req, res) => {
+
+//     try {
+//         User.findById(req.params.id,
+//             () => {
+//                 // return res.status(200).json(docs)
+//                 User.aggregate([
+//                     {
+//                         '$match': {
+//                             _id: ObjectID(req.params.id)
+//                         }
+//                     }, {
+//                         '$project': {
+//                             'firstname': 1,
+//                             'lastname': 1,
+//                             'email': 1
+//                         }
+//                     }, {
+//                         $lookup: {
+//                             'from': 'stores', 
+//                             'as': 'panier',
+//                             'let': {
+//                               'product': '_id'
+//                             }, 
+//                             'pipeline': [
+//                               {
+//                                 '$project': {
+//                                   'product.product_name': 1, 
+//                                   'product.price': 1, 
+//                                   'product._id': 1, 
+//                                   '_id': 1
+//                                 }
+//                               }
+//                             ], 
+//                           },                           
+//                     }, {
+//                         '$unwind': {
+//                           'path': '$panier'
+//                         }
+//                       }, {
+//                         '$unwind': {
+//                           'path': '$panier.product'
+//                         }
+//                       }, {
+//                         $match: {
+//                             'panier.product._id': ObjectID(req.body.productId)
+//                         }
+//                     }
+//                 ]).exec((err, data) => {
+//                         if (err) return res.status(400).send(err);
+//                         return res.status(200).send(data);
+//                     })
+//             }
+//         )
+
+//     } catch (err) {
+//         return res.status(400).send(err);
+//     }
+
+// }

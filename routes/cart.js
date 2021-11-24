@@ -4,5 +4,5 @@ const cartCtrl = require('../controllers/cart');
 const auth = require('../middlewares/auth')
 
 router.get('/getcart/:id', cartCtrl.getAllProductInCart)
-router.patch('/getshowpanier/:id', cartCtrl.getShowPanier)
+router.post('/addtocart', cartCtrl.AddToCart)
 module.exports = router ;
