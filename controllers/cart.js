@@ -40,3 +40,22 @@ exports.AddToCart = (req, res, next) => {
     })
     .catch(error => res.status(500).json({ error }))
 }
+
+exports.RemoveOneProduct = (req, res, next) => {
+    const userCart = []
+    User.findOne({_id: req.body.userId})
+    .then((user) => {
+        user.cart.map((cart) => {
+            if(cart._id.valueOf() !== req.body.productId.valueOf()){
+                userCart.push(cart)
+            }
+        
+        })
+        User.updateOne({_id: req.body.userId}, {cart: userCart, _id: req.body.userId})
+        .then(() => res.status(200).json({ message: "Produit supprimé du panier !"}))
+        .catch((error) => res.status(500).json({ error }))
+    })
+    .catch((error) => res.status(500).json({ error }))
+
+    
+}
