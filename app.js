@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const app = express();
 const userRoutes = require('./routes/user')
 const cartRoute = require('./routes/cart')
+const productRoute = require('./routes/product')
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -22,5 +23,6 @@ app.use(express.json());
 
 app.use('/api', userRoutes);
 app.use('/api', cartRoute);
+app.use('/api', productRoute);
 
 module.exports = app

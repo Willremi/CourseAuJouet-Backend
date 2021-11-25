@@ -2,16 +2,12 @@ const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
 const storeSchema = mongoose.Schema({
+
     siret_number: {
         type: String,
         required: true
     },
     product: [{
-        product_code: {
-            type: mongoose.Types.ObjectId,
-            required: true,
-            unique: true
-        },
         product_name: {
             type: String,
             required: true
