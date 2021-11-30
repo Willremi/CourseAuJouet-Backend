@@ -10,6 +10,9 @@ const transport = nodemailer.createTransport({
     user: user,
     pass: pass,
   },
+  tls: {
+    rejectUnauthorized: false
+  }
 });
 
 module.exports.sendConfirmationEmail = (name, email, confirmationCode) => {
