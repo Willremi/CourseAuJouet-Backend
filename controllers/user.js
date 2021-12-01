@@ -74,6 +74,7 @@ exports.verifyUser = (req, res, next) => {
 
 exports.login = (req, res, next) => {
   const token = confirmationCode.generateRandomCode(25) // a mettre lorsque l'on saura comment le mettre dans auth.js
+  remember = req.body.rememberMe
   User.findOne({
       email: req.body.email
     })
@@ -99,9 +100,10 @@ exports.login = (req, res, next) => {
                 role: user.role,
                 rememberMe: user.rememberMe
               },
-              'RANDOM_TOKEN_SECRET', {
-                expiresIn: '24h'
+              'RANDOM_TOKEN_SECRET' ,{
+                expiresIn: `${remember ? '30d' : '1h'}`
               }
+
             )
           });
         })
