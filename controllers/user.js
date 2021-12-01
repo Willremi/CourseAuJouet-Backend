@@ -70,7 +70,7 @@ exports.verifyUser = (req, res, next) => {
 
 exports.login = (req, res, next) => {
   remember = req.body.rememberMe
-  User.findOneAndUpdate({email: req.body.email, rememberMe: remember})
+  User.findOne({email: req.body.email})
     .then(user => {
       
       if (!user) {
