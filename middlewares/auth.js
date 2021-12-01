@@ -1,18 +1,17 @@
 const jwt = require('jsonwebtoken');
-const { findOne } = require('../models/user');
 
 module.exports = (req, res, next) => {
     
     try{
-        const token = req.headers.authorization.split(' ')[1];
-        const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-        const userId = decodedToken.userId;
-        if (req.body.userId && req.body.userId !== userId ) {
+        const token = req.headers.authorization.split(' ')[1];;
+        const payload = jwt.decode(token , 'RANDOM_SECRET_TOKEN');
+        // on vérifie que le payload JWT renvoi bien un ID 
+        if (!payload.userId ) {
             throw 'user ID non valable';
         } else {
             next();
         }
     } catch(error) {
-        res.status(401).json({ error: error | 'requête non authentifiée'});
+        res.status(401).json({ error: 'requête non authentifiée'});
     }
 }

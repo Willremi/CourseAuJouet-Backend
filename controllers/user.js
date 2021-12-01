@@ -1,13 +1,13 @@
 const User = require('../models/user');
-const Role = require('../models/role');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const confirmationCode = require('../middlewares/generateRandomCode');
-
 const {
   sendConfirmationEmail,
   sendConfirmationResetPassword
 } = require('../middlewares/nodemailer.config');
+
+
 
 exports.register = (req, res, next) => {
 
@@ -51,26 +51,22 @@ exports.register = (req, res, next) => {
     }));
 };
 
+
 exports.verifyUser = (req, res, next) => {
 
-  User.findOneAndUpdate({
-      confirmationCode: req.params.confirmationCode
-    }, {
-      account_status: true,
-      confirmationCode: null,
+  User.findOneAndUpdate( {confirmationCode: req.params.confirmationCode},
+     {account_status : true,
       role: [{
         role_name: "CUSTOMER"
       }]
-    })
-    .then(() => {
-      res.status(200).json({
-        message: "Veuillez vous logger"
-      })
-    })
-    .catch(error => res.status(500).json({
-      error
-    }))
+  })
+  .then(() => {
+    res.status(200).json({ message : "Veuillez vous logger"})
+  })
+  .catch( error => res.status(500).json({ error }))
 }
+
+
 
 exports.login = (req, res, next) => {
   const token = confirmationCode.generateRandomCode(25) // a mettre lorsque l'on saura comment le mettre dans auth.js
@@ -79,6 +75,7 @@ exports.login = (req, res, next) => {
       email: req.body.email
     })
     .then(user => {
+      
       if (!user) {
         return res.status(401).json({
           error: 'Utilisateur non trouvé !'
@@ -91,14 +88,14 @@ exports.login = (req, res, next) => {
               error: 'Mot de passe incorrect !'
             });
           }
-
+          
           res.status(200).json({
 
             id_token: jwt.sign({
                 userId: user._id,
                 email: user.email,
                 role: user.role,
-                rememberMe: user.rememberMe
+                rememberMe: remember
               },
               'RANDOM_TOKEN_SECRET' ,{
                 expiresIn: `${remember ? '30d' : '1h'}`
