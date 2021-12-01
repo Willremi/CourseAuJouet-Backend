@@ -69,10 +69,10 @@ exports.verifyUser = (req, res, next) => {
 
 
 exports.login = (req, res, next) => {
-  remember = req.body.rememberMe
-  User.findOneAndUpdate({email: req.body.email, rememberMe: remember})
+  
+  const remember = req.body.rememberMe
+  User.findOne({email: req.body.email})
     .then(user => {
-      
       if (!user) {
         return res.status(401).json({
           error: 'Utilisateur non trouvé !'
