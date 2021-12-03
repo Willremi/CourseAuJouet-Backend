@@ -50,6 +50,7 @@ const storeSchema = mongoose.Schema({
             type: String,
             required: true
         }
+        
     }],
     orders: [{
         pending_order: [{
