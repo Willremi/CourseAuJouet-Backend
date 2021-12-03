@@ -11,6 +11,7 @@ const productSchema = mongoose.Schema({
             required_age: {type: Number, required: true},
             on_sale_date: {type: Date, required: true},
             category:  {type: String, required:true},
+            ordered: {type: Number, required:true},
 })
 
 productSchema.plugin(uniqueValidator);

@@ -31,6 +31,7 @@ exports.addNewProduct = (req, res, next) => {
             required_age: req.body.required_age,
             on_sale_date: req.body.on_sale_date,
             category: req.body.category,
+            ordered: 0,
         
       });
 
@@ -44,3 +45,5 @@ exports.addNewProduct = (req, res, next) => {
           error
         }));
 }
+
+
