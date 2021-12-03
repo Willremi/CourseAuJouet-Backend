@@ -33,10 +33,9 @@ exports.register = (req, res, next) => {
         confirmationCode: token,
         reset_password: token
       });
-
+      
       user.save()
-        .then(() => {
-
+        .then((user) => {
           res.status(201).json({
             message: "Vous avez été enregistré, verifiez vos e-mail afin de confirmer votre inscription !"
           })

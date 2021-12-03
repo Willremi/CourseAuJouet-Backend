@@ -46,7 +46,7 @@ const userSchema = mongoose.Schema({
     role: [{
         role_name: {
             type: String,
-            required: true
+            required: false
         }
     }],
     confirmationCode: {
