@@ -7,51 +7,6 @@ const storeSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    product: [{
-        product_name: {
-            type: String,
-            required: true
-        },
-        description: {
-            type: String,
-            required: true
-        },
-        images: {
-            type: Array,
-            required: true
-        },
-        price: {
-            type: Number,
-            required: true
-        },
-        stock: {
-            type: Number,
-            required: true
-        },
-        trademark: {
-            type: String,
-            required: true
-        },
-        required_age: {
-            type: Number,
-            required: true
-        },
-        weight: {
-            type: Number
-        },
-        size: {
-            type: Number
-        },
-        on_sale_date: {
-            type: Date,
-            required: true
-        },
-        category: {
-            type: String,
-            required: true
-        }
-        
-    }],
     orders: [{
         pending_order: [{
             order_id: {
