@@ -1,13 +1,15 @@
 const Product = require('../models/product')
 
 exports.searchProduct = (req, res, next) => {
-  
+  console.log("Raquete Front :", req.body)
   Product.aggregate([{
       '$search': {
-        'index': 'search_product',
+        'index': 'Submit Search',
         'text': {
           'query': `${req.body.search}`,
-          'path': ['product_name', 'category', 'trademark']
+          path: {
+          'wildcard': '*'
+        }
         }
       }
     }])
