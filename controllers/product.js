@@ -1,3 +1,4 @@
+const { db } = require('../models/product')
 const Product = require('../models/product')
 
 
@@ -18,6 +19,10 @@ Product.aggregate([
 })
 .catch((err) => res.status(500).json({err}))
 }
+
+
+
+
 
 exports.addNewProduct = (req, res, next) => {
     const product = new Product({
@@ -47,3 +52,20 @@ exports.addNewProduct = (req, res, next) => {
 }
 
 
+
+
+exports.getpopularproduct = (req, res, next) => {
+
+  Product.find({
+    ordered: 15
+  })
+  .then((product) => {
+      
+      res.status(200).json({product})
+  })
+  .catch((err) => res.status(500).json({err}))
+  }
+  
+
+  
+  
