@@ -47,11 +47,23 @@ exports.addNewProduct = (req, res, next) => {
 };
 
 exports.getpopularproduct = (req, res, next) => {
-  Product.find({
-    ordered: {"$gt":9},
-  })
+  const totalOrdered = [];
+  const reducer = (previousValue, currentValue) => previousValue + currentValue;
+  
+  
+  Product.find(
+    {ordered: {"$gt":0}}
+  )
     .then((product) => {
+      console.log(product)
+      product.map(ord => {
+        totalOrdered.push(ord.ordered);
+      })
+      const orderedAverage =Math.round( totalOrdered.reduce(reducer) / totalOrdered.length);
+      console.log("La moyenne des ventes est de :", orderedAverage);
       res.status(200).json({ product });
     })
+    
     .catch((err) => res.status(500).json({ err }));
+    
 };
