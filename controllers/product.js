@@ -49,21 +49,30 @@ exports.addNewProduct = (req, res, next) => {
 exports.getpopularproduct = (req, res, next) => {
   const totalOrdered = [];
   const reducer = (previousValue, currentValue) => previousValue + currentValue;
-  
-  
-  Product.find(
-    {ordered: {"$gt":0}}
-  )
+
+  Product.find({ ordered: { $gt: 0 } })
     .then((product) => {
-      console.log(product)
-      product.map(ord => {
+      console.log(product);
+      product.map((ord) => {
         totalOrdered.push(ord.ordered);
-      })
-      const orderedAverage =Math.round( totalOrdered.reduce(reducer) / totalOrdered.length);
-      console.log("La moyenne des ventes est de :", orderedAverage);
-      res.status(200).json({ product });
+      });
+      const orderedAverage = Math.round(
+        totalOrdered.reduce(reducer) / totalOrdered.length
+      );
+      console.log(
+        "La moyenne des ventes est de :",
+        orderedAverage,
+        " produits vendus"
+      );
+
+      Product.find({ ordered: { $gt: orderedAverage } })
+
+        .then((popularProduct) => {
+          console.log("Les produit populaires sont :", popularProduct);
+          res.status(201).json({ popularProduct });
+        })
+
+        .catch((err) => res.status(500).json({ err }));
     })
-    
     .catch((err) => res.status(500).json({ err }));
-    
 };
