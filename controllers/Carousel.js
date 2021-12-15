@@ -19,5 +19,7 @@ exports.addOneSlideInCarousel = (req, res, next) => {
 }
 
 exports.deleteOneSlideInCarousel = (req, res, next) => {
-
+    Carousel.deleteOne({_id: req.body._id})
+        .then( res.status(201).json("le slide a été delete"))
+        .catch(error => res.status(500).json({error}))
 }
