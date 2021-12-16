@@ -21,8 +21,8 @@ exports.register = (req, res, next) => {
     .then(hash => {
       const user = new User({
         civility: req.body.civility,
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
+        firstname: req.body.firstName,
+        lastname: req.body.lastName,
         birthday_date: req.body.birthday_date,
         phone: req.body.phone,
         email: req.body.email.toLowerCase(),
@@ -33,10 +33,9 @@ exports.register = (req, res, next) => {
         confirmationCode: token,
         reset_password: token
       });
-
+      
       user.save()
-        .then(() => {
-
+        .then((user) => {
           res.status(201).json({
             message: "Vous avez été enregistré, verifiez vos e-mail afin de confirmer votre inscription !"
           })
@@ -69,11 +68,10 @@ exports.verifyUser = (req, res, next) => {
 
 
 exports.login = (req, res, next) => {
-  const token = confirmationCode.generateRandomCode(25) // a mettre lorsque l'on saura comment le mettre dans auth.js
-  remember = req.body.rememberMe
+  
+  const remember = req.body.rememberMe
   User.findOne({email: req.body.email})
     .then(user => {
-      
       if (!user) {
         return res.status(401).json({
           error: 'Utilisateur non trouvé !'
