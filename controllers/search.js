@@ -34,6 +34,7 @@ exports.autoCompleteSearch = (req, res, next) => {
           //   "maxEdits": 2,//Nombre maximal de modifications de caractère unique requises pour correspondre au terme de recherche spécifié. La valeur peut être 1ou 2.
           //   "prefixLength": 2,//Nombre de caractères au début de chaque terme dans le résultat qui doit correspondre exactement. La valeur par défaut est 0.
           // }
+          // "fuzzy" Créer quelque soucis (logique) lors de l'auto-completion qui sortait des résultats qui ne correspondait pas a la recherche tapé
         },
       }
     }])

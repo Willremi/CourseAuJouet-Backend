@@ -20,7 +20,7 @@ exports.AddToCart = (req, res, next) => {
 
     const cartArray = []
     Product.findOne({
-            _id: req.body.ProductId
+            _id: req.body.Product._id
         })
         .then((product) => {
             cartArray.push(product)
@@ -37,7 +37,7 @@ exports.AddToCart = (req, res, next) => {
                     user.cart.map((RecupProductInCart) => {
                         cartArray.push(RecupProductInCart)
                     })
-                    console.log("Product :", cartArray)
+                    
                     User.updateOne({
                             _id: req.body.userId
                         }, {
