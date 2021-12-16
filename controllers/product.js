@@ -59,16 +59,12 @@ exports.getpopularproduct = (req, res, next) => {
       const orderedAverage = Math.round(
         totalOrdered.reduce(reducer) / totalOrdered.length
       );
-      console.log(
-        "La moyenne des ventes est de :",
-        orderedAverage,
-        " produits vendus"
-      );
+      
 
       Product.find({ ordered: { $gt: orderedAverage } })
 
         .then((popularProduct) => {
-          console.log("Les produit populaires sont :", popularProduct);
+
           res.status(201).json({ popularProduct });
         })
 
