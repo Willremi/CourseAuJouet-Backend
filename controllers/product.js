@@ -10,7 +10,7 @@ exports.getNewProduct = (req, res, next) => {
   Product.aggregate([
     {
       $sort: {
-        on_sale_date: 1,
+        on_sale_date: -1,
       },
     },
     {
@@ -24,31 +24,39 @@ exports.getNewProduct = (req, res, next) => {
 };
 
 exports.addNewProduct = (req, res, next) => {
-  const product = new Product({
-    product_name: req.body.product_name,
-    description: req.body.description,
-    images: req.body.image,
-    price: req.body.price,
-    stock: req.body.stock,
-    trademark: req.body.trademark,
-    required_age: req.body.required_age,
-    on_sale_date: req.body.on_sale_date,
-    category: req.body.category,
-    ordered: 0,
-  });
 
-  product
-    .save()
-    .then(() => {
-      res.status(201).json({
-        message: `Vous avez ajouté ${req.body.product_name} dans le rayon ${req.body.category}`,
-      });
-    })
-    .catch((error) =>
-      res.status(500).json({
-        error,
-      })
-    );
+  console.log("body",req.body)
+  console.log("files", req.file)
+
+
+  // const product = new Product({
+  //   product_name: req.body.product_name,
+  //   reference: req.body.reference,
+  //   description: req.body.description,
+  //   images = req.body.images,
+  //   price: req.body.price,
+  //   stock: req.body.stock,
+  //   trademark: req.body.trademark,
+  //   required_age: req.body.required_age,
+  //   on_sale_date: Date.now(),
+  //   category: req.body.category,
+  //   subcategory: req.body.subcategory,
+  //   ordered: 0,
+  //   status: req.body.status
+  // });
+
+  // product
+  //   .save()
+  //   .then(() => {
+  //     res.status(201).json({
+  //       message: `Vous avez ajouté ${req.body.product_name} dans le rayon ${req.body.category}`,
+  //     });
+  //   })
+  //   .catch((error) =>
+  //     res.status(500).json({
+  //       error,
+  //     })
+  //   );
 };
 
 exports.getpopularproduct = (req, res, next) => {
@@ -57,7 +65,6 @@ exports.getpopularproduct = (req, res, next) => {
 
   Product.find({ ordered: { $gt: 0 } })
     .then((product) => {
-      console.log(product);
       product.map((ord) => {
         totalOrdered.push(ord.ordered);
       });

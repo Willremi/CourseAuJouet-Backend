@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
+const path = require('path');
 const userRoutes = require('./routes/user')
 const cartRoute = require('./routes/cart')
 const productRoute = require('./routes/product')
@@ -21,8 +22,10 @@ mongoose.connect('mongodb+srv://ENDOR:tJMORaTVs92tSOrI@sopeckoko.tum3a.mongodb.n
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
+app.use(express.urlencoded({ extended : true }));
 app.use(express.json());
 
+app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api', userRoutes);
 app.use('/api', cartRoute);
 app.use('/api', productRoute);
