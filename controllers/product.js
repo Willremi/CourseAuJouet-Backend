@@ -24,39 +24,40 @@ exports.getNewProduct = (req, res, next) => {
 };
 
 exports.addNewProduct = (req, res, next) => {
-
-  console.log("body",req.body)
-  console.log("files", req.file)
-
-
-  // const product = new Product({
-  //   product_name: req.body.product_name,
-  //   reference: req.body.reference,
-  //   description: req.body.description,
-  //   images = req.body.images,
-  //   price: req.body.price,
-  //   stock: req.body.stock,
-  //   trademark: req.body.trademark,
-  //   required_age: req.body.required_age,
-  //   on_sale_date: Date.now(),
-  //   category: req.body.category,
-  //   subcategory: req.body.subcategory,
-  //   ordered: 0,
-  //   status: req.body.status
-  // });
-
-  // product
-  //   .save()
-  //   .then(() => {
-  //     res.status(201).json({
-  //       message: `Vous avez ajouté ${req.body.product_name} dans le rayon ${req.body.category}`,
-  //     });
-  //   })
-  //   .catch((error) =>
-  //     res.status(500).json({
-  //       error,
-  //     })
-  //   );
+  
+  var imagesArray = [];
+  req.files.forEach(element => {
+    imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
+  });
+  
+  const product = new Product({
+    product_name: req.body.product_name,
+    reference: req.body.reference,
+    description: req.body.description,
+    images : imagesArray,
+    price: req.body.price,
+    stock: req.body.stock,
+    trademark: req.body.trademark,
+    required_age: req.body.required_age,
+    on_sale_date: Date.now(),
+    category: req.body.category,
+    subcategory: req.body.subcategory,
+    ordered: 0,
+    status: req.body.status
+  });
+  
+  product
+    .save()
+    .then(() => {
+      res.status(201).json({
+        message: `Vous avez ajouté ${req.body.product_name} dans le rayon ${req.body.category}`,
+      });
+    })
+    .catch((error) =>
+      res.status(500).json({
+        error,
+      })
+    );
 };
 
 exports.getpopularproduct = (req, res, next) => {

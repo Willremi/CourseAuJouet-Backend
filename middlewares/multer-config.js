@@ -13,8 +13,13 @@ const storage = multer.diskStorage({
   filename: (req, file, callback) => {
     const name = file.originalname.split(' ').join('_');
     const extension = MIME_TYPES[file.mimetype];
-    callback(null, name + Date.now() + '.' + extension);
+    callback(null, Date.now() + '_' +  name);
   }
 });
 
-module.exports = multer({storage: storage}).single('images');
+
+module.exports = multer({storage: storage}).array('images',{maxCount:10});//doit etre le champ name de l'input
+
+//single() pour un fichier 
+//array() pour plusieur fichier dans le meme fields/input
+//fields() pour differents fichiers dans des fields/inputs different
