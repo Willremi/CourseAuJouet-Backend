@@ -24,7 +24,7 @@ exports.getNewProduct = (req, res, next) => {
 };
 
 exports.addNewProduct = (req, res, next) => {
-  
+ 
   var imagesArray = [];
   req.files.forEach(element => {
     imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
@@ -50,7 +50,7 @@ exports.addNewProduct = (req, res, next) => {
     .save()
     .then(() => {
       res.status(201).json({
-        message: `Vous avez ajouté ${req.body.product_name} dans le rayon ${req.body.category}`,
+        message: `Vous avez ajouté ${req.body.product_name} dans la catégorie ${req.body.category}`,
       });
     })
     .catch((error) =>
