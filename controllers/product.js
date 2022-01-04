@@ -60,6 +60,31 @@ exports.addNewProduct = (req, res, next) => {
     );
 };
 
+exports.modifyProduct = (req, res, next) => {
+  console.log(req);
+  // var imagesArray = [];
+  // req.files.forEach(element => {
+  //   imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
+  // });
+  Product.findOneAndUpdate({_id : req.body._id}, 
+  {  product_name: req.body.product_name,
+    reference: req.body.reference,
+    description: req.body.description,
+    // images : imagesArray,
+    price: req.body.price,
+    stock: req.body.stock,
+    trademark: req.body.trademark,
+    required_age: req.body.required_age,
+    category: req.body.category,
+    subcategory: req.body.subcategory,
+    status: req.body.status})
+
+    .then(() => {
+      res.status(200).json({message : "le produit à été mis à jour"})
+    })
+    .catch( error => res.status(500).json( {error} ))
+};
+
 exports.getpopularproduct = (req, res, next) => {
   const totalOrdered = [];
   const reducer = (previousValue, currentValue) => previousValue + currentValue;

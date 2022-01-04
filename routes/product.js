@@ -8,6 +8,7 @@ router.get('/getallproduct', productCtrl.getAllProducts);
 router.get('/getoneproduct', productCtrl.getOneProduct);
 router.get('/getnewproduct', productCtrl.getNewProduct);
 router.post('/addnewproduct', auth, multer, productCtrl.addNewProduct);
+router.post('/modifyproduct', auth, multer, productCtrl.modifyProduct);
 router.get('/getpopularproduct', productCtrl.getpopularproduct);
 
 module.exports = router;
