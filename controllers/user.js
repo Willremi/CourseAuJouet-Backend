@@ -176,6 +176,7 @@ exports.editProfil = (req, res, next) => {
     lastname: req.body.lastname,
     birthday_date: req.body.birthday_date,
     phone: req.body.phone,
+    email: req.body.email.toLowerCase(),
   }
 }, 
   {new: true, upsert: true, setDefaultsOnInsert: true},
