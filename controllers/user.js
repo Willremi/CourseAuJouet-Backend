@@ -165,3 +165,27 @@ exports.validResetPassword = (req, res, next) => {
     }))
 
 }
+
+exports.editProfil = (req, res, next) => {
+  User.findByIdAndUpdate({
+    _id: req.params.id
+}, {
+  $set: {
+    civility: req.body.civility,
+    firstname: req.body.firstname,
+    lastname: req.body.lastname,
+    birthday_date: req.body.birthday_date,
+    phone: req.body.phone,
+  }
+}, 
+  {new: true, upsert: true, setDefaultsOnInsert: true},
+)
+.then(user => {
+    return res.status(200).json({
+        user
+    })
+})
+.catch(error => res.status(500).json({
+    error
+}))
+}
