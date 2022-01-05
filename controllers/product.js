@@ -62,15 +62,17 @@ exports.addNewProduct = (req, res, next) => {
 
 exports.modifyProduct = (req, res, next) => {
   console.log(req);
-  // var imagesArray = [];
-  // req.files.forEach(element => {
-  //   imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
-  // });
+  
+  var imagesArray = [];
+  req.files.forEach(element => {
+    imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
+  });
+
   Product.findOneAndUpdate({_id : req.body._id}, 
   {  product_name: req.body.product_name,
     reference: req.body.reference,
     description: req.body.description,
-    // images : imagesArray,
+    images : imagesArray,
     price: req.body.price,
     stock: req.body.stock,
     trademark: req.body.trademark,
