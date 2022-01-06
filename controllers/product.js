@@ -61,9 +61,12 @@ exports.addNewProduct = (req, res, next) => {
 };
 
 exports.modifyProduct = (req, res, next) => {
-  console.log(req.body.images);
-
+console.log(req.body);
   var imagesArray = [];
+
+    req.body.stockedImages.forEach(element => {
+      imagesArray.push(element)
+    })
     req.files.forEach(element => {
       imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
     });
