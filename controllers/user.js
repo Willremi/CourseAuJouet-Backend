@@ -37,7 +37,7 @@ exports.register = (req, res, next) => {
       user.save()
         .then((user) => {
           res.status(201).json({
-            message: "Vous avez été enregistré, verifiez vos e-mail afin de confirmer votre inscription !"
+            message: "Votre inscription a bien été prise en compte, veuillez verifier vos e-mail afin de finaliser votre inscription !"
           })
           sendConfirmationEmail(user.firstname, user.email.toLowerCase(), user.confirmationCode)
         })
@@ -60,9 +60,9 @@ exports.verifyUser = (req, res, next) => {
       }]
   })
   .then(() => {
-    res.status(200).json({ message : "Veuillez vous logger"})
+    res.status(200).json({ message : "Merci de vous êtes inscrit sur notre site, vous pouvez à présent vous connecter a votre compte"})
   })
-  .catch( error => res.status(500).json({ error }))
+  .catch( error => res.status(500).json({ message:"Votre code de confirmation est expiré" }))
 }
 
 
@@ -74,14 +74,14 @@ exports.login = (req, res, next) => {
     .then(user => {
       if (!user) {
         return res.status(401).json({
-          error: 'Utilisateur non trouvé !'
+          message: 'Utilisateur non trouvé !'
         });
       }
       bcrypt.compare(req.body.password, user.password)
         .then(valid => {
           if (!valid) {
             return res.status(401).json({
-              error: 'Mot de passe incorrect !'
+              message: 'Mot de passe incorrect !'
             });
           }
           
@@ -128,9 +128,11 @@ exports.sendEmailResetPassword = (req, res, next) => {
         message: "Un email vous a été envoyé"
       })
     })
-    .catch(error => res.status(500).json({
-      error
-    }))
+    .catch(error => {
+      console.log(error)
+      res.status(500).json({
+      message: "Une erreur s'est produite, si le problème persite contactez l'administrateur du site"
+    })})
 }
 
 exports.validResetPassword = (req, res, next) => {
