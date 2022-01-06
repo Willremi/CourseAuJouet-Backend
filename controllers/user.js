@@ -167,26 +167,30 @@ exports.validResetPassword = (req, res, next) => {
 }
 
 exports.editProfil = (req, res, next) => {
-  User.findByIdAndUpdate({
+  // console.log(req.body);
+  User.updateOne({
     _id: req.params.id
 }, {
-  $set: {
+  
     civility: req.body.civility,
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
+    firstname: req.body.firstName,
+    lastname: req.body.lastName,
     birthday_date: req.body.birthday_date,
     phone: req.body.phone,
     email: req.body.email,
-  }
-}, 
-  {new: true, upsert: true, setDefaultsOnInsert: true},
+
+} 
+
 )
 .then(user => {
     return res.status(200).json({
-        user
+        message: "Votre profil a bien été modifié"
     })
 })
-.catch(error => res.status(500).json({
-    error
-}))
+.catch(error => 
+  {
+    console.log(error)
+  res.status(500).json({
+    message: "Une erreur est survenu, si le problème persiste. Contactez l'administrateur du site"
+})})
 }
