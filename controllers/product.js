@@ -1,5 +1,5 @@
 const Product = require('../models/product')
-
+const fs = require('fs');
 exports.getAllProducts = (req, res, next) => {
   Product.find()
   .then((products) => res.status(200).json({ products }))
@@ -64,12 +64,9 @@ exports.modifyProduct = (req, res, next) => {
 console.log(req.body);
   var imagesArray = [];
 
-    req.body.stockedImages.forEach(element => {
-      imagesArray.push(element)
-    })
-    req.files.forEach(element => {
-      imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
-    });
+  req.files.forEach(element => {
+    imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
+  });
 
 
   Product.findOneAndUpdate({_id : req.body._id}, 
@@ -121,4 +118,15 @@ exports.getOneProduct = (req, res, next) => {
   Product.findOne({_id: req.body._id})
     .then((product) => res.status(200).json({ product }))
     .catch((error) => res.status(500).json({ error }))
+}
+
+exports.deleteOneStockedImage = (req, res, next) => {
+  console.log(req.body)
+  const filename = req.body.deletedImage.split('/images/')[1];
+  fs.unlink(`images/${filename}`, () => {
+    Product.findOneAndUpdate({_id: req.body._id},{images:req.body.stockedImages})
+    .then(() => res.status(200).json({ message:"requete aboutie" }))
+    .catch((error) => res.status(500).json({ error }))
+  })
+  
 }
