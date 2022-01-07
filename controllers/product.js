@@ -1,12 +1,13 @@
 const Product = require('../models/product')
 
 exports.getAllProducts = (req, res, next) => {
+  
   Product.find()
     .then((products) => res.status(200).json({
       products
     }))
     .catch((error) => {
-      console.log(error)
+      
     res.status(500).json({
       message: "Une erreur est survenue lors de la récupération des produits, si le problème persite veuillez contacter l'administrateur du site"
     })
