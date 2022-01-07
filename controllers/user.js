@@ -177,7 +177,7 @@ exports.editProfil = (req, res, next) => {
     lastname: req.body.lastName,
     birthday_date: req.body.birthday_date,
     phone: req.body.phone,
-    email: req.body.email,
+    email: req.body.email.toLowerCase(),
 
 } 
 
