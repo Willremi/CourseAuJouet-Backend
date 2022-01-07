@@ -168,16 +168,17 @@ exports.validResetPassword = (req, res, next) => {
 
 exports.editProfil = (req, res, next) => {
   // console.log(req.body);
+  const {civility, firstName, lastName, birthday_date, phone, email} = req.body;
   User.updateOne({
     _id: req.params.id
 }, {
   
-    civility: req.body.civility,
-    firstname: req.body.firstName,
-    lastname: req.body.lastName,
-    birthday_date: req.body.birthday_date,
-    phone: req.body.phone,
-    email: req.body.email.toLowerCase(),
+    civility: civility,
+    firstname: firstName,
+    lastname: lastName,
+    birthday_date: birthday_date,
+    phone: phone,
+    email: email.toLowerCase(),
 
 } 
 
