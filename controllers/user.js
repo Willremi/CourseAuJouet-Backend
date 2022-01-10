@@ -33,7 +33,7 @@ exports.register = (req, res, next) => {
         confirmationCode: token,
         reset_password: token
       });
-      
+
       user.save()
         .then((user) => {
           res.status(201).json({
@@ -53,24 +53,25 @@ exports.register = (req, res, next) => {
 
 exports.verifyUser = (req, res, next) => {
 
-  User.findOneAndUpdate( {confirmationCode: req.params.confirmationCode},
-     {account_status : true,
+  User.findOneAndUpdate({ confirmationCode: req.params.confirmationCode },
+    {
+      account_status: true,
       role: [{
         role_name: "CUSTOMER"
       }]
-  })
-  .then(() => {
-    res.status(200).json({ message : "Veuillez vous logger"})
-  })
-  .catch( error => res.status(500).json({ error }))
+    })
+    .then(() => {
+      res.status(200).json({ message: "Veuillez vous logger" })
+    })
+    .catch(error => res.status(500).json({ error }))
 }
 
 
 
 exports.login = (req, res, next) => {
-  
+
   const remember = req.body.rememberMe
-  User.findOne({email: req.body.email})
+  User.findOne({ email: req.body.email })
     .then(user => {
       if (!user) {
         return res.status(401).json({
@@ -84,23 +85,23 @@ exports.login = (req, res, next) => {
               error: 'Mot de passe incorrect !'
             });
           }
-          
+
           res.status(200).json({
 
             id_token: jwt.sign({
-                userId: user._id, 
-                civility: user.civility, 
-                firstname: user.firstname, 
-                lastname: user.lastname, 
-                birthday_date: user.birthday_date, 
-                phone: user.phone,
-                email: user.email,
-                role: user.role,
-                rememberMe: remember
-              },
-              'RANDOM_TOKEN_SECRET' ,{
-                expiresIn: `${remember ? '30d' : '1h'}`
-              }
+              userId: user._id,
+              civility: user.civility,
+              firstname: user.firstname,
+              lastname: user.lastname,
+              birthday_date: user.birthday_date,
+              phone: user.phone,
+              email: user.email,
+              role: user.role,
+              rememberMe: remember
+            },
+              'RANDOM_TOKEN_SECRET', {
+              expiresIn: `${remember ? '30d' : '1h'}`
+            }
 
             )
           });
@@ -123,10 +124,10 @@ exports.sendEmailResetPassword = (req, res, next) => {
   });
 
   User.findOneAndUpdate({
-      email: req.body.email.toLowerCase()
-    }, {
-      reset_password: token
-    })
+    email: req.body.email.toLowerCase()
+  }, {
+    reset_password: token
+  })
     .then((user) => {
       sendConfirmationResetPassword(user.email.toLowerCase(), token)
       res.status(200).json({
@@ -139,18 +140,18 @@ exports.sendEmailResetPassword = (req, res, next) => {
 }
 
 exports.validResetPassword = (req, res, next) => {
-  
+
   bcrypt.hash(req.body.password, 10)
     .then((hash) => {
       User.findOneAndUpdate({
-          reset_password: req.params.id
-        }, {
-          password: hash,
-          reset_password: hash
-        })
+        reset_password: req.params.id
+      }, {
+        password: hash,
+        reset_password: hash
+      })
         .then((user) => {
-          if(!user){
-            return res.status(404).json({ message: "Utilisateur inconnu !"})
+          if (!user) {
+            return res.status(404).json({ message: "Utilisateur inconnu !" })
           }
           res.status(200).json({
             message: "Mot de passe modifié"
@@ -167,31 +168,42 @@ exports.validResetPassword = (req, res, next) => {
 }
 
 exports.editProfil = (req, res, next) => {
-  // console.log(req.body);
-  const {civility, firstName, lastName, birthday_date, phone, email} = req.body;
-  User.updateOne({
-    _id: req.params.id
-}, {
+
+  // mettre à jour les infos user
+
+  const { civility, firstName, lastName, birthday_date, phone, email } = req.body;
+
+  User.findOne({ email }, function (err, user) {
+    if (user) {
+      res.status(400).json({ error: "A user with that email has already registered. Please use a different email.." })
+    } else {
+      User.updateOne({
+        _id: req.params.id
+      }, {
+    
+        civility: civility,
+        firstname: firstName,
+        lastname: lastName,
+        birthday_date: birthday_date,
+        phone: phone,
+        email: email.toLowerCase(),
+    
+      }
+    
+      )
+        .then(user => {
+          return res.status(200).json({
+            message: "Votre profil a bien été modifié"
+          })
+        })
+        .catch(error => {
+          console.log(error)
+          res.status(500).json({
+            message: "Une erreur est survenu, si le problème persiste. Contactez l'administrateur du site"
+          })
+        })
+      
+    }
+  });
   
-    civility: civility,
-    firstname: firstName,
-    lastname: lastName,
-    birthday_date: birthday_date,
-    phone: phone,
-    email: email.toLowerCase(),
-
-} 
-
-)
-.then(user => {
-    return res.status(200).json({
-        message: "Votre profil a bien été modifié"
-    })
-})
-.catch(error => 
-  {
-    console.log(error)
-  res.status(500).json({
-    message: "Une erreur est survenu, si le problème persiste. Contactez l'administrateur du site"
-})})
 }
