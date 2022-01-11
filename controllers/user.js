@@ -173,37 +173,28 @@ exports.editProfil = (req, res, next) => {
 
   const { civility, firstName, lastName, birthday_date, phone, email } = req.body;
 
-  User.findOne({ email }, function (err, user) {
-    if (user) {
-      res.status(400).json({ error: "A user with that email has already registered. Please use a different email.." })
+  User.findOneAndUpdate({ _id: req.params.id }, {
+    civility: civility,
+    firstname: firstName,
+    lastname: lastName,
+    birthday_date: birthday_date,
+    phone: phone,
+    email: email.toLowerCase(),
+  },
+
+  ).then(() => {
+    res.status(201).json({ message: "votre modification a bien été prise en compte" })
+  }).catch(error => {
+    if (error.codeName === 'DuplicateKey') {
+      res.status(400).json({
+        message: "Un utilisateur avec cet adresse électronique s'est déjà inscrit. Veuillez utiliser un autre email..."
+      })
     } else {
-      User.updateOne({
-        _id: req.params.id
-      }, {
-    
-        civility: civility,
-        firstname: firstName,
-        lastname: lastName,
-        birthday_date: birthday_date,
-        phone: phone,
-        email: email.toLowerCase(),
-    
-      }
-    
-      )
-        .then(user => {
-          return res.status(200).json({
-            message: "Votre profil a bien été modifié"
-          })
-        })
-        .catch(error => {
-          console.log(error)
-          res.status(500).json({
-            message: "Une erreur est survenu, si le problème persiste. Contactez l'administrateur du site"
-          })
-        })
-      
+      res.status(500).json({
+        message: "Une erreur est survenu, si le problème persiste. Contactez l'administrateur du site"
+      })
+
     }
   });
-  
+
 }
