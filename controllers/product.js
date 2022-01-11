@@ -62,31 +62,16 @@ exports.addNewProduct = (req, res, next) => {
 
 exports.modifyProduct = (req, res, next) => {
   var imagesArray = [];
-
-  //SUPPRESSION DES IMAGES EN BACK
-  if(req.body.deletedImages){
-    if(Array.isArray(req.body.deletedImages)){
-      req.body.deletedImages.forEach(element => {
-        const filename = element.split('/images/')[1];
-        fs.unlink(`images/${filename}`, (err) => {
-          if (err) throw err;
-          console.log(`${filename} a été supprimé`);
-        })
-      })
-    } else {
-      const filename = req.body.deletedImages.split('/images/')[1];
-      fs.unlink(`images/${filename}`, (err) => {
-        if (err) throw err;
-        console.log(`${filename} a été supprimé`);
-      })
-    }
-  }
   
   //gestion des images en BDD
   if(req.body.stockedImages){
-    req.body.stockedImages.forEach(element => {
-      imagesArray.push(element)
-    })
+    if(Array.isArray(req.body.stockedImages)){
+      req.body.stockedImages.forEach(element => {
+        imagesArray.push(element)
+      })
+    } else {
+      imagesArray.push(req.body.stockedImages)
+    }
   }
 
   //gestion des images upload
@@ -112,8 +97,28 @@ exports.modifyProduct = (req, res, next) => {
       .then(() => {
         res.status(200).json({message : "le produit à été mis à jour"})
       })
+      .then( () => {
+        //SUPPRESSION DES IMAGES EN BACK
+        if(req.body.deletedImages){
+          if(Array.isArray(req.body.deletedImages)){
+            req.body.deletedImages.forEach(element => {
+              const filename = element.split('/images/')[1];
+              fs.unlink(`images/${filename}`, (err) => {
+                if (err) throw err;
+                console.log(`${filename} a été supprimé`);
+              })
+            })
+          } else {
+            const filename = req.body.deletedImages.split('/images/')[1];
+            fs.unlink(`images/${filename}`, (err) => {
+              if (err) throw err;
+              console.log(`${filename} a été supprimé`);
+            })
+          }
+        }
+      })
       .catch( error => res.status(500).json( {error} ))
-    };
+};
     
 
 
