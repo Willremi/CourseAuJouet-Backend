@@ -61,32 +61,61 @@ exports.addNewProduct = (req, res, next) => {
 };
 
 exports.modifyProduct = (req, res, next) => {
-console.log(req.body);
   var imagesArray = [];
 
-  req.files.forEach(element => {
-    imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
-  });
-
-
-  Product.findOneAndUpdate({_id : req.body._id}, 
-  {  product_name: req.body.product_name,
-    reference: req.body.reference,
-    description: req.body.description,
-    images: imagesArray,
-    price: req.body.price,
-    stock: req.body.stock,
-    trademark: req.body.trademark,
-    required_age: req.body.required_age,
-    category: req.body.category,
-    subcategory: req.body.subcategory,
-    status: req.body.status})
-
-    .then(() => {
-      res.status(200).json({message : "le produit à été mis à jour"})
+  //SUPPRESSION DES IMAGES EN BACK
+  if(req.body.deletedImages){
+    if(Array.isArray(req.body.deletedImages)){
+      req.body.deletedImages.forEach(element => {
+        const filename = element.split('/images/')[1];
+        fs.unlink(`images/${filename}`, (err) => {
+          if (err) throw err;
+          console.log(`${filename} a été supprimé`);
+        })
+      })
+    } else {
+      const filename = req.body.deletedImages.split('/images/')[1];
+      fs.unlink(`images/${filename}`, (err) => {
+        if (err) throw err;
+        console.log(`${filename} a été supprimé`);
+      })
+    }
+  }
+  
+  //gestion des images en BDD
+  if(req.body.stockedImages){
+    req.body.stockedImages.forEach(element => {
+      imagesArray.push(element)
     })
-    .catch( error => res.status(500).json( {error} ))
-};
+  }
+
+  //gestion des images upload
+  if(req.files){
+    req.files.forEach(element => {
+      imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
+    });
+  }
+  
+  
+  Product.findOneAndUpdate({_id : req.body._id}, 
+    {  product_name: req.body.product_name,
+      reference: req.body.reference,
+      description: req.body.description,
+      images: imagesArray,
+      price: req.body.price,
+      stock: req.body.stock,
+      trademark: req.body.trademark,
+      required_age: req.body.required_age,
+      category: req.body.category,
+      subcategory: req.body.subcategory,
+      status: req.body.status})
+      .then(() => {
+        res.status(200).json({message : "le produit à été mis à jour"})
+      })
+      .catch( error => res.status(500).json( {error} ))
+    };
+    
+
 
 exports.getpopularproduct = (req, res, next) => {
   const totalOrdered = [];
@@ -118,15 +147,4 @@ exports.getOneProduct = (req, res, next) => {
   Product.findOne({_id: req.body._id})
     .then((product) => res.status(200).json({ product }))
     .catch((error) => res.status(500).json({ error }))
-}
-
-exports.deleteOneStockedImage = (req, res, next) => {
-  console.log(req.body)
-  const filename = req.body.deletedImage.split('/images/')[1];
-  fs.unlink(`images/${filename}`, () => {
-    Product.findOneAndUpdate({_id: req.body._id},{images:req.body.stockedImages})
-    .then(() => res.status(200).json({ message:"requete aboutie" }))
-    .catch((error) => res.status(500).json({ error }))
-  })
-  
 }

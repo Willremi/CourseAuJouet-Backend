@@ -10,6 +10,5 @@ router.get('/getnewproduct', productCtrl.getNewProduct);
 router.post('/addnewproduct', auth, multer, productCtrl.addNewProduct);
 router.post('/modifyproduct', auth, multer, productCtrl.modifyProduct);
 router.get('/getpopularproduct', productCtrl.getpopularproduct);
-router.put('/deleteoneimage', productCtrl.deleteOneStockedImage);
 
 module.exports = router;
