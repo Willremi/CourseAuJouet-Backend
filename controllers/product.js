@@ -95,9 +95,8 @@ exports.modifyProduct = (req, res, next) => {
       subcategory: req.body.subcategory,
       status: req.body.status})
       .then(() => {
-        res.status(200).json({message : "le produit à été mis à jour"})
-      })
-      .then( () => {
+        res.status(201).json({message : `le produit "${req.body.product_name}" à été mis à jour`});
+
         //SUPPRESSION DES IMAGES EN BACK
         if(req.body.deletedImages){
           if(Array.isArray(req.body.deletedImages)){
