@@ -66,13 +66,14 @@ exports.addNewProduct = (req, res, next) => {
       });
     })
     .catch((error) => {
+      
       if (error.errors.reference) {
-        res.status(500).json({
+        res.status(401).json({
           message:"La référence " + error.errors.reference.value + " est déjà utilisée sur un autre produit"
         })
       }
-      if (error.errors.product_name) {
-        res.status(500).json({
+      else if (error.errors.product_name) {
+        res.status(401).json({
           message:"Le nom du produit " + error.errors.product_name.value + " est déjà utilisé"
         })
       }
