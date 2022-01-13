@@ -71,7 +71,7 @@ exports.addNewProduct = (req, res, next) => {
           message:"La référence " + error.errors.reference.value + " est déjà utilisée sur un autre produit"
         })
       }
-      if (error.errors.product_name) {
+      else if (error.errors.product_name) {
         res.status(500).json({
           message:"Le nom du produit " + error.errors.product_name.value + " est déjà utilisé"
         })
@@ -86,7 +86,7 @@ exports.addNewProduct = (req, res, next) => {
 
 exports.modifyProduct = (req, res, next) => {
   var imagesArray = [];
-  
+  console.log(req.body.reference);
   //gestion des images en BDD
   if(req.body.stockedImages){
     if(Array.isArray(req.body.stockedImages)){
@@ -107,7 +107,7 @@ exports.modifyProduct = (req, res, next) => {
   
   
   Product.findOneAndUpdate({_id : req.body._id}, 
-    {  product_name: req.body.product_name,
+    { product_name: req.body.product_name,
       reference: req.body.reference,
       description: req.body.description,
       images: imagesArray,
@@ -140,7 +140,25 @@ exports.modifyProduct = (req, res, next) => {
           }
         }
       })
-      .catch( error => res.status(500).json( {error} ))
+      .catch((error) => {
+        console.log(error);
+        // console.log(error.keyPattern);
+        if (error.keyValue.product_name) {
+          res.status(401).json({
+            message:"Le nom du produit " + error.keyValue.product_name + " est déjà utilisé"
+          })
+        }
+         else if (error.keyValue.reference) {
+          res.status(401).json({
+            message:"La référence " + error.keyValue.reference + " est déjà utilisée sur un autre produit"
+          })
+        }
+        // else {
+        //   res.status(401).json({
+        //     message: "Une erreur du serveur est survenue, si le problème persite veuillez contacter l'administrateur du site"
+        //   })
+        // }
+      });
 };
     
 
