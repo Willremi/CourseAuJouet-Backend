@@ -84,6 +84,7 @@ exports.addNewProduct = (req, res, next) => {
     });
 };
 
+//produit populaire
 exports.getpopularproduct = (req, res, next) => {
   const totalOrdered = [];
   const reducer = (previousValue, currentValue) => previousValue + currentValue;
