@@ -86,7 +86,6 @@ exports.addNewProduct = (req, res, next) => {
 
 exports.modifyProduct = (req, res, next) => {
   var imagesArray = [];
-  console.log(req.body.reference);
   //gestion des images en BDD
   if(req.body.stockedImages){
     if(Array.isArray(req.body.stockedImages)){
