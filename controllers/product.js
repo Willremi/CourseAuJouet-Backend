@@ -140,25 +140,20 @@ exports.modifyProduct = (req, res, next) => {
           }
         }
       })
-      .catch((error) => {
-        console.log(error);
-        // console.log(error.keyPattern);
-        if (error.keyValue.product_name) {
-          res.status(401).json({
-            message:"Le nom du produit " + error.keyValue.product_name + " est déjà utilisé"
-          })
+      .catch( (error) => {
+        {
+          if(error.keyValue.product_name){
+           res.status(401).json({message : `Le nom ${error.keyValue.product_name} existe déjà`})
+          }
+          else if(error.keyValue.reference) {
+           res.status(401).json({ message : `La reference ${error.keyValue.reference} existe déjà`}) 
+          }
+          else {
+            res.status(500).json( {error} )
+          }
         }
-         else if (error.keyValue.reference) {
-          res.status(401).json({
-            message:"La référence " + error.keyValue.reference + " est déjà utilisée sur un autre produit"
-          })
-        }
-        // else {
-        //   res.status(401).json({
-        //     message: "Une erreur du serveur est survenue, si le problème persite veuillez contacter l'administrateur du site"
-        //   })
-        // }
-      });
+      }
+      )
 };
     
 
