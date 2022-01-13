@@ -83,19 +83,21 @@ exports.modifyProduct = (req, res, next) => {
   
   
   Product.findOneAndUpdate({_id : req.body._id}, 
-    {  product_name: req.body.product_name,
-      reference: req.body.reference,
-      description: req.body.description,
-      images: imagesArray,
-      price: req.body.price,
-      stock: req.body.stock,
-      trademark: req.body.trademark,
-      required_age: req.body.required_age,
-      category: req.body.category,
-      subcategory: req.body.subcategory,
-      status: req.body.status})
-      .then(() => {
-        res.status(200).json({message : "le produit à été mis à jour"})
+      { product_name: req.body.product_name,
+        reference: req.body.reference,
+        description: req.body.description,
+        images: imagesArray,
+        price: req.body.price,
+        stock: req.body.stock,
+        trademark: req.body.trademark,
+        required_age: req.body.required_age,
+        category: req.body.category,
+        subcategory: req.body.subcategory,
+        status: req.body.status})
+      .then((response) => {
+        console.log(response.reference)
+        console.log(req.body.reference)
+        res.status(201).json({message : "le produit à été mis à jour"})
       })
       .then( () => {
         //SUPPRESSION DES IMAGES EN BACK
@@ -117,7 +119,20 @@ exports.modifyProduct = (req, res, next) => {
           }
         }
       })
-      .catch( error => res.status(500).json( {error} ))
+      .catch( (error) => {
+        {
+          if(error.keyValue.product_name){
+           res.status(401).json({message : `Le nom ${error.keyValue.product_name} existe déjà`})
+          }
+          else if(error.keyValue.reference) {
+           res.status(401).json({ message : `La reference ${error.keyValue.reference} existe déjà`}) 
+          }
+          else {
+            res.status(500).json( {error} )
+          }
+        }
+      }
+      )
 };
     
 
