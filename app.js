@@ -7,6 +7,7 @@ const cartRoute = require('./routes/cart')
 const productRoute = require('./routes/product')
 const searchRoute = require('./routes/search')
 const carouselRoute = require('./routes/carousel')
+const passportSetup = require('./middlewares/passport-config')
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
