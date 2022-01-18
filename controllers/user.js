@@ -172,7 +172,7 @@ exports.editProfil = (req, res, next) => {
   // mettre à jour les infos user
 
   const { civility, firstName, lastName, birthday_date, phone, email } = req.body;
-
+  
   User.findOneAndUpdate({ _id: req.params.id }, {
     civility: civility,
     firstname: firstName,
