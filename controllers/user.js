@@ -163,15 +163,3 @@ exports.validResetPassword = (req, res, next) => {
 
 }
 
-
-// login et loggout with google
-exports.loginWithGoogle = (req, res) => {
-  //handle with passport JS
-  console.log('loggin with google');
-  res.status(200).json({message : 'loggin with google'})
-}
-
-exports.logoutWithGoogle =  (req, res) => {
-  //handle with passport JS
-  res.send('logging out')
-}
