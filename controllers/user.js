@@ -96,7 +96,6 @@ exports.login = (req, res, next) => {
               'RANDOM_TOKEN_SECRET' ,{
                 expiresIn: `${remember ? '30d' : '1h'}`
               }
-
             )
           });
         })
@@ -163,3 +162,51 @@ exports.validResetPassword = (req, res, next) => {
 
 }
 
+exports.googleAuth = (req, res) =>{
+  
+  User.findOne({email: req.body.email})
+    .then( user => {
+      if (!user) {
+        const user = new User({
+        civility: "Man",
+        firstname: req.body.givenName,
+        lastname: req.body.familyName,
+        email: req.body.email,
+        registration_date: Date.now(),
+        account_status: true,
+        googleId: req.body.googleId,
+        role: [{role_name: "CUSTOMER"}]
+        })
+
+        user.save()
+        .then(() => {
+          res.status(201).json({
+            id_token: jwt.sign({
+              userId: user._id,
+              email: user.email,
+              role: user.role,
+              rememberMe: remember
+            },
+            'RANDOM_TOKEN_SECRET' ,{
+              expiresIn: '30d'
+            }
+            )
+          })
+        })
+        .catch(error => res.status(400).json({error}))
+      } else {
+        res.status(200).json({
+          id_token: jwt.sign({
+            userId: user._id,
+            email: user.email,
+            role: user.role,
+            rememberMe: remember
+          },
+          'RANDOM_TOKEN_SECRET' ,{
+            expiresIn: '30d'
+          })
+        })
+      }
+
+    })
+}

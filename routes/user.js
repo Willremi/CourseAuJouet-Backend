@@ -7,6 +7,7 @@ router.post('/authenticate', userCtrl.login);
 router.get('/confirm_register/:confirmationCode', userCtrl.verifyUser);
 router.post('/reset-password', userCtrl.sendEmailResetPassword);
 router.post('/valid-reset-password/:id', userCtrl.validResetPassword);
+router.post('/auth/google', userCtrl.googleAuth)
 
 
 module.exports = router;
