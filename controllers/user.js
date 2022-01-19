@@ -162,3 +162,16 @@ exports.validResetPassword = (req, res, next) => {
     }))
 
 }
+
+exports.getOneUser = (req, res, next) => {
+  User.findOne({ _id: req.params.id})
+  .then((user) => {
+    if(!user){
+      res.status(404).json({ message : "Utilisateur non connecté/inscrit"})
+    }
+    else {
+      res.status(200).json({ user })
+    }
+  })
+  .catch(() => res.status(500).json({ message : "une erreur est survenue"}))
+}

@@ -1,42 +1,14 @@
 const stripe = require('stripe')(process.env.SECRET_KEY)
-
-// exports.createCheckoutSession = async (req, res, next) => {
-//     console.log(req.body)
-//   let { amount, id } = req.body
-//    console.log("amount : ",amount)
-//    console.log("id", id)
-//    try {
-//        const paymentIntent = await stripe.paymentIntents.create({
-//            amount : amount, // montant de la transaction
-//            currency: "EUR", //devise
-//            // Stripe dashboard description
-//            description: req.body.product_name,
-//            // Bank record, 22 chars max
-//            statement_descriptor: "LCAJ FR",
-
-//            metadata: {
-//                product_uuid : req.body.uuid
-//            },
-//           payment_method: id,
-//           confirm: true,
-//        });
-//        res.status(201).json({message : 'Paiement réussi', success: true,})
-//    }
-//    catch(error) {
-//        console.log(error);
-//        res.status(500).json({ message: "Le paiement a échoué", success: false})
-//    }
-
-// }
+const User = require('../models/user');
 
 exports.createCheckoutSession = async (req, res) => {
 
-    //Array to push parsed data onto for line_items object in stripe session
+    // Array to push parsed data onto for line_items object in stripe session
     const lineItem = [];
     try {
         const customer = await stripe.customers.create({
-            name: 'Bidoyen Mathieu',
-            email: 'azariel@live.fr',
+            name: req.body.user.firstname + " " + req.body.user.lastname,
+            email: req.body.user.email,
             address: {
                 city: "Lille",
                 country: "France",
@@ -52,13 +24,13 @@ exports.createCheckoutSession = async (req, res) => {
                     postal_code: "59000",
                     state: "Nord"
                 },
-                name: "Bidoyen Mathieu",
-                phone: "102030405"
+                name: req.body.user.firstname + " " + req.body.user.lastname,
+                phone: req.body.user.phone
             },
             preferred_locales: ["FR"]
         })
 
-        for (let item of req.body) {
+        for (let item of req.body.cart) {
             // I create a new product and price via Stripe on this project,
             // normally it will be necessary to do so when creating
             // a new product in general that will be registered in our
@@ -71,7 +43,7 @@ exports.createCheckoutSession = async (req, res) => {
 
             const price = await stripe.prices.create({
                 product: product.id,
-                unit_amount: req.body[0].price,
+                unit_amount: item.price,
                 currency: 'eur',
             })
 
