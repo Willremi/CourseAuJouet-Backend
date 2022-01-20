@@ -1,8 +1,7 @@
 const stripe = require('stripe')(process.env.SECRET_KEY)
-const User = require('../models/user');
 
 exports.createCheckoutSession = async (req, res) => {
-
+     
     // Array to push parsed data onto for line_items object in stripe session
     const lineItem = [];
     try {
@@ -30,6 +29,15 @@ exports.createCheckoutSession = async (req, res) => {
             preferred_locales: ["FR"]
         })
 
+        const taxRate = await stripe.taxRates.create({
+            display_name: 'TVA',
+            inclusive: false,
+            percentage: 20,
+            country: 'FR',
+            jurisdiction: 'FR',
+            description: 'Taxe sur la Valeur Ajoutée (TVA)',
+          });
+
         for (let item of req.body.cart) {
             // I create a new product and price via Stripe on this project,
             // normally it will be necessary to do so when creating
@@ -56,13 +64,82 @@ exports.createCheckoutSession = async (req, res) => {
                     },
                     unit_amount: price.unit_amount,
                 },
-                quantity: item.quantity
+                quantity: item.quantity,
+                tax_rates: [taxRate.id],
             });
 
         }
         const session = await stripe.checkout.sessions.create({
             customer: customer.id,
             payment_method_types: ['card'],
+            shipping_address_collection: {
+                allowed_countries: ['FR'],
+              },
+              shipping_options: [
+                {
+                  shipping_rate_data: {
+                    type: 'fixed_amount',
+                    fixed_amount: {
+                      amount: 0,
+                      currency: 'eur',
+                    },
+                    display_name: 'Livraison en magasin',
+                    // Delivers between 5-7 business days
+                    delivery_estimate: {
+                      minimum: {
+                        unit: 'business_day',
+                        value: 3,
+                      },
+                      maximum: {
+                        unit: 'business_day',
+                        value: 5,
+                      },
+                    }
+                  }
+                },
+                {
+                  shipping_rate_data: {
+                    type: 'fixed_amount',
+                    fixed_amount: {
+                      amount: 0,
+                      currency: 'eur',
+                    },
+                    display_name: 'En point relais',
+                    // Delivers in exactly 1 business day
+                    delivery_estimate: {
+                      minimum: {
+                        unit: 'business_day',
+                        value: 3,
+                      },
+                      maximum: {
+                        unit: 'business_day',
+                        value: 5,
+                      },
+                    }
+                  }
+                },
+                {
+                    shipping_rate_data: {
+                      type: 'fixed_amount',
+                      fixed_amount: {
+                        amount: 350,
+                        currency: 'eur',
+                      },
+                      display_name: 'Livraison à domicile',
+                      // Delivers in exactly 1 business day
+                      delivery_estimate: {
+                        minimum: {
+                          unit: 'business_day',
+                          value: 3,
+                        },
+                        maximum: {
+                          unit: 'business_day',
+                          value: 5,
+                        },
+                      }
+                    }
+                  },
+              ],
             line_items: lineItem,
             mode: 'payment',
             success_url: `http://localhost:3000/payment/?success=true`,
