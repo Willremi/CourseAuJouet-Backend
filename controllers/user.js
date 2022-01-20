@@ -202,5 +202,48 @@ exports.googleAuth = (req, res) =>{
           .catch(error => res.status(400).json({message: error}))
       }
     })
-    
+}
+
+exports.facebookAuth = (req, res) =>{
+  console.log(req.body);
+  User.findOne({email: req.body.email})
+    .then( user => {
+      if (user){
+        return res.status(200).json({
+
+          id_token: jwt.sign({
+              userId: user._id,
+              email: user.email,
+              role: user.role,
+            },'RANDOM_TOKEN_SECRET',
+            {expiresIn: '1h'}
+            )
+        })
+      } else {
+        const [firstname,lastname] = req.body.name.split(' ')
+        const user = new User({
+          civility: "Man",
+          firstname: firstname,
+          lastname: lastname,
+          email: req.body.email,
+          registration_date: Date.now(),
+          account_status: true,
+          googleId: req.body.googleId,
+          role: [{role_name: "CUSTOMER"}]
+          })
+          user.save()
+          .then(user => {
+            res.status(200).json({
+              id_token: jwt.sign({
+                userId: user._id,
+                email: user.email,
+                role: user.role,
+              },'RANDOM_TOKEN_SECRET',
+              {expiresIn: '1h'}
+              )
+            })
+          })
+          .catch(error => res.status(400).json({message: error}))
+      }
+    })
 }
