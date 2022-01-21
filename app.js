@@ -8,7 +8,8 @@ const cartRoute = require('./routes/cart')
 const productRoute = require('./routes/product')
 const searchRoute = require('./routes/search')
 const carouselRoute = require('./routes/carousel');
-const paymentRoute = require('./routes/payment')
+const paymentRoute = require('./routes/payment');
+const orderRoute  = require('./routes/order');
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -33,5 +34,6 @@ app.use('/api', cartRoute);
 app.use('/api', productRoute);
 app.use('/api', searchRoute);
 app.use('/api', carouselRoute);
-app.use('/api/', paymentRoute);
+app.use('/api', paymentRoute);
+app.use('/api', orderRoute);
 module.exports = app

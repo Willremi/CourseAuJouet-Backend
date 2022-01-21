@@ -89,6 +89,7 @@ exports.login = (req, res, next) => {
 
             id_token: jwt.sign({
                 userId: user._id,
+                firstName : user.firstname,
                 email: user.email,
                 role: user.role,
                 rememberMe: remember
