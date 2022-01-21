@@ -189,7 +189,7 @@ exports.googleAuth = (req, res) =>{
           })
           user.save()
           .then(user => {
-            res.status(201).json({
+            res.status(200).json({
               id_token: jwt.sign({
                 userId: user._id,
                 email: user.email,
@@ -220,7 +220,7 @@ exports.facebookAuth = (req, res) =>{
             )
         })
       } else {
-        const [firstname,lastname] = req.body.name.split(' ')
+        const [firstname,lastname] = req.body.name?.split(' ')
         const user = new User({
           civility: "Man",
           firstname: firstname,
