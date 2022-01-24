@@ -1,7 +1,7 @@
 const Product = require('../models/product')
 const fs = require('fs');
 exports.getAllProducts = (req, res, next) => {
-  
+  //
   Product.find()
     .then((products) => res.status(200).json({
       products
