@@ -13,7 +13,14 @@ const oAuth2Client = new google.auth.OAuth2(
 
 const SCOPES = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile";
 
-const drive = google.oauth2({
-    auth: oAuth2Client,
-    version: "v2"
-})
+// const oauth2 = google.oauth2({
+//     auth: oAuth2Client,
+//     version: "v2"
+// })
+
+module.exports.uploadDrive = (res, req) => {
+    const oauth2 = google.oauth2({
+        auth: oAuth2Client,
+        version: "v2"
+    })
+}
