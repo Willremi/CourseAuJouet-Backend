@@ -1,4 +1,17 @@
 const stripe = require('stripe')(process.env.SECRET_KEY)
+const Order = require('../models/order');
+const { createOrder } = require('./order');
+
+const fulfillOrder = (session) => {
+  Order.findOneAndUpdate({stripe_session_id : session.id},{
+    status : session.payment_status
+  })
+  .then((order) => { return  order })
+  .catch((err) => {
+    console.log(err);
+    { return err }
+  })
+}
 
 exports.createCheckoutSession = async (req, res) => {
      
@@ -44,9 +57,10 @@ exports.createCheckoutSession = async (req, res) => {
             // a new product in general that will be registered in our
             // BDD and the BDD of Stripe. Next time you will have to find the product and the price via its "id"
 
+
             const product = await stripe.products.create({
                 name: item.product_name,
-                images: [item.images[0]]
+                images: item.images
             })
 
             const price = await stripe.prices.create({
@@ -142,14 +156,87 @@ exports.createCheckoutSession = async (req, res) => {
               ],
             line_items: lineItem,
             mode: 'payment',
-            success_url: `http://localhost:3000/payment/?success=true`,
-            cancel_url: `http://localhost:3000/payment/?canceled=true`,
+            success_url: `http://localhost:3000/payment/success?id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `http://localhost:3000/payment/cancel?`,
         });
         res.status(200).json({
-            url: session.url
+            url: session.url,
+            id: session.id,
         })
 
     } catch (e) {
         console.log(e)
     }
+}
+
+exports.checkoutSessionCompleted = async (req, res) => {
+  const endpointSecret = process.env.STRIPE
+  const payload = req.body;
+  const sig = req.headers['stripe-signature'];
+  
+  let event;
+  
+  try {
+    event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
+  }
+  catch(err){
+    console.log("ERREUR : ", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object;
+     
+      // Save an order in your database, marked as 'awaiting payment'
+      createOrder(session);
+
+      // Check if the order is paid (for example, from a card payment)
+      //
+      // A delayed notification payment will have an `unpaid` status, as
+      // you're still waiting for funds to be transferred from the customer's
+      // account.
+      if (session.payment_status === 'paid') {
+        fulfillOrder(session);
+      }
+
+      break;
+    }
+
+    case 'checkout.session.async_payment_succeeded': {
+      const session = event.data.object;
+
+      // Fulfill the purchase...
+     fulfillOrder(session);
+
+      break;
+    }
+
+    case 'checkout.session.async_payment_failed': {
+      const session = event.data.object;
+      console.log('Send an email to the customer asking them to retry their order');
+      // emailCustomerAboutFailedPayment(session);
+
+      break;
+    }
+  }
+  
+  res.status(200).end()
+}
+
+exports.getCheckoutSession = async (req, res, next) => {
+  var OrderedProduct = {}
+  const session = await stripe.checkout.sessions.retrieve(req.params.id)
+  .then((session) => {
+    OrderedProduct.session = session
+   
+  })
+  .catch((error) => console.log(error))
+
+  const listItems = await stripe.checkout.sessions.listLineItems(req.params.id)
+  .then((Items) => {
+    OrderedProduct.product = Items})
+  .catch((error) => console.log(error))
+
+  res.status(200).json({ OrderedProduct })
 }
