@@ -20,6 +20,14 @@ const productSchema = mongoose.Schema({
         type: [String],
         required: true
     },
+    driveFilesId: {
+        type: [String],
+        required: true
+    },
+    folderId: {
+        type: String,
+        required: true
+    },
     price: {
         type: Number,
         required: true
