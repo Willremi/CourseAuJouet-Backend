@@ -6,10 +6,9 @@ const fulfillOrder = (session) => {
   Order.findOneAndUpdate({stripe_session_id : session.id},{
     status : session.payment_status
   })
-  .then((order) => { return  order })
+  .then(() => console.log("Status payé !"))
   .catch((err) => {
     console.log(err);
-    { return err }
   })
 }
 
@@ -169,7 +168,7 @@ exports.createCheckoutSession = async (req, res) => {
     }
 }
 
-exports.checkoutSessionCompleted = async (req, res) => {
+exports.checkoutSessionCompleted = (req, res) => {
   const endpointSecret = process.env.STRIPE
   const payload = req.body;
   const sig = req.headers['stripe-signature'];
@@ -181,7 +180,7 @@ exports.checkoutSessionCompleted = async (req, res) => {
   }
   catch(err){
     console.log("ERREUR : ", err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    return res.status(400).json({message: `Webhook Error: ${err.message}`});
   }
 
   switch (event.type) {

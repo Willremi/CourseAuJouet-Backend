@@ -202,7 +202,7 @@ exports.getpopularproduct = (req, res, next) => {
 };
 
 exports.getOneProduct = (req, res, next) => {
-  Product.findOne({_id: req.body._id})
+  Product.findOne({_id: req.params.id})
     .then((product) => res.status(200).json({ product }))
     .catch((error) => res.status(500).json({ error }))
 }

@@ -22,7 +22,7 @@ exports.createOrder = (session) => {
         delivery_date: deliveryDate,
         delivery_price : session.total_details.amount_shipping,
         order_taxes : session.total_details.amount_tax,
-        status : "awaiting payment",
+        status : `${session.payment_status !== 'paid' ? "awaiting payment" : session.payment_status }`,
     });
     order.save()
     .then(() => {
