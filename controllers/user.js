@@ -163,8 +163,16 @@ exports.validResetPassword = (req, res, next) => {
 }
 
 exports.googleAuth = (req, res) =>{
+  
+  const token = jwt.sign({
+    email: req.body.email.toLowerCase()
+  }, confirmationCode.generateRandomCode(25), {
+    expiresIn: '24h'
+  });
+
+
   User.findOne({email: req.body.email})
-    .then( user => {
+    .then( (user) => {
       if (user){
         return res.status(200).json({
 
@@ -182,9 +190,11 @@ exports.googleAuth = (req, res) =>{
           firstname: req.body.givenName,
           lastname: req.body.familyName,
           email: req.body.email,
-          registration_date: Date.now(),
+          registration_date: Date.now(),  
           account_status: true,
           googleId: req.body.googleId,
+          confirmationCode: token,
+          reset_password: token,
           role: [{role_name: "CUSTOMER"}]
           })
           user.save()
@@ -201,10 +211,18 @@ exports.googleAuth = (req, res) =>{
           })
           .catch(error => res.status(400).json({message: error}))
       }
-    })
+    }).catch(error => res.status(404).json({message: error}))
 }
 
 exports.facebookAuth = (req, res) =>{
+
+  const token = jwt.sign({
+    email: req.body.email.toLowerCase()
+  }, confirmationCode.generateRandomCode(25), {
+    expiresIn: '24h'
+  });
+
+  console.log(req.body);
   User.findOne({email: req.body.email})
     .then( user => {
       if (user){
@@ -227,7 +245,9 @@ exports.facebookAuth = (req, res) =>{
           email: req.body.email,
           registration_date: Date.now(),
           account_status: true,
-          googleId: req.body.googleId,
+          confirmationCode: token,
+          reset_password: token,
+          facebookId: req.body.facebookId,
           role: [{role_name: "CUSTOMER"}]
           })
           user.save()
@@ -245,4 +265,5 @@ exports.facebookAuth = (req, res) =>{
           .catch(error => res.status(400).json({message: error}))
       }
     })
+    .catch(error => res.status(400).json({message: error}))
 }
