@@ -5,12 +5,15 @@ const CLIENT_ID = OAuth2Data.web.client_id;
 const CLIENT_SECRET = OAuth2Data.web.client_secret;
 const REDIRECT_URI = OAuth2Data.web.redirect_uris[0];
 
+const REFRESH_TOKEN = "1//04QXIuS-dff6UCgYIARAAGAQSNwF-L9IriQ49Cxx6DnJJC7pubyIQjvg0Dly9Gds6FGMuaNKJy0Chf2u_9nDQph7GuI4f7SgUQO0"
+
 const oAuth2Client = new google.auth.OAuth2(
     CLIENT_ID,
     CLIENT_SECRET,
     REDIRECT_URI
 );
 
+oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN })
 const SCOPES = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile";
 
 // const oauth2 = google.oauth2({
@@ -80,4 +83,5 @@ const drive = google.drive({
 
 
   // module.exports.oAuth2Client = oAuth2Client
+  module.exports.drive = drive
  
