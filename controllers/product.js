@@ -167,6 +167,24 @@ exports.deleteProduct = (req, res) => {
   })
 }
 
+exports.deleteManyProducts = (req, res) => {
+  console.log(req.body);
+  //recuperation du tableau de produits à supprimer
+  let productToDelete = []
+  req.body.forEach( element => {
+    productToDelete.push(element._id)
+  })
+  Product.deleteMany({_id:{$in: productToDelete}} )
+  .then(() => {
+    res.status(201).json({
+      message: "Les articles ont été supprimés",
+    });
+  })
+  .catch((error) =>{
+    res.status(404).json({message: error})
+  })
+}
+
 exports.getpopularproduct = (req, res, next) => {
   const totalOrdered = [];
   const reducer = (previousValue, currentValue) => previousValue + currentValue;
