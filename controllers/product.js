@@ -1,5 +1,6 @@
 const Product = require('../models/product')
 const fs = require('fs');
+const productArchive = require('../models/productArchive');
 exports.getAllProducts = (req, res, next) => {
   
   Product.find()
@@ -156,14 +157,38 @@ exports.modifyProduct = (req, res, next) => {
 };
     
 exports.deleteProduct = (req, res) => {
-  Product.findByIdAndDelete(req.body._id)
+
+  const productToArchive = new productArchive({
+    product_name: req.body.product_name,
+    reference: req.body.reference,
+    description: req.body.description,
+    images: req.body.images,
+    price: req.body.price,
+    stock: req.body.stock,
+    trademark: req.body.trademark,
+    required_age: req.body.required_age,
+    on_sale_date: req.body.on_sale_date,
+    category: req.body.category,
+    subcategory: req.body.subcategory,
+    ordered: req.body.ordered,
+    status: req.body.status,
+    previousId: req.body._id
+  });
+
+  productToArchive.save()
   .then(() => {
-    res.status(201).json({
-      message: `Vous avez supprimé ${req.body.product_name}`,
-    });
+    Product.findByIdAndDelete(req.body._id)
+    .then(() => {
+      res.status(201).json({
+        message: `Vous avez supprimé ${req.body.product_name}`,
+      });
+    })
+    .catch((error) =>{
+      res.status(404).json({message: error})
+    })
   })
-  .catch((error) =>{
-    res.status(404).json({message: error})
+  .catch((error) => {
+    res.status(404).json({message : error})
   })
 }
 
