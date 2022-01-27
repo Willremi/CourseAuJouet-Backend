@@ -81,6 +81,7 @@ exports.addNewProduct = (req, res, next) => {
         let idFile = response.data.id;
         // drivefilesId.push(idFile)
         // console.log(drivefilesId);
+        // Voir response.data.status pour le problème de reception des données pusher
       })
       .catch(err => console.log(err))
     });
