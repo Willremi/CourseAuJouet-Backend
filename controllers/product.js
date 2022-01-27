@@ -155,8 +155,16 @@ exports.modifyProduct = (req, res, next) => {
       )
 };
     
-exports.deleteProduct = (req) => {
-  
+exports.deleteProduct = (req, res) => {
+  Product.findByIdAndDelete(req.body._id)
+  .then(() => {
+    res.status(201).json({
+      message: `Vous avez supprimé ${req.body.product_name}`,
+    });
+  })
+  .catch((error) =>{
+    res.status(404).json({message: error})
+  })
 }
 
 exports.getpopularproduct = (req, res, next) => {

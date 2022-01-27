@@ -11,5 +11,6 @@ router.get('/getallproduct', auth, managerAuth, productCtrl.getAllProducts);
 router.get('/getnewproduct', productCtrl.getNewProduct);
 router.post('/addnewproduct', auth, managerAuth, multer, productCtrl.addNewProduct);
 router.get('/getpopularproduct', productCtrl.getpopularproduct);
+router.get('/deleteproduct', productCtrl.deleteProduct)
 
 module.exports = router;
