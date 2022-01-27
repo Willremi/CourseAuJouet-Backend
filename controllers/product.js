@@ -9,23 +9,23 @@ exports.getAllProducts = (req, res, next) => {
       products
     }))
     .catch((error) => {
-      
-    res.status(500).json({
-      message: "Une erreur est survenue lors de la récupération des produits, si le problème persite veuillez contacter l'administrateur du site"
-    })
+
+      res.status(500).json({
+        message: "Une erreur est survenue lors de la récupération des produits, si le problème persite veuillez contacter l'administrateur du site"
+      })
     })
 }
 
 exports.getNewProduct = (req, res, next) => {
   Product.aggregate([{
-        $sort: {
-          on_sale_date: -1,
-        },
-      },
-      {
-        $limit: 4,
-      },
-    ])
+    $sort: {
+      on_sale_date: -1,
+    },
+  },
+  {
+    $limit: 4,
+  },
+  ])
     .then((product) => {
       res.status(200).json({
         product
@@ -34,12 +34,73 @@ exports.getNewProduct = (req, res, next) => {
     .catch((err) => {
       console.log(err)
       res.status(500).json({
-      message: "Une erreur est survenue lors de la récupération des nouveaux produits, si le problème persite veuillez contacter l'administrateur du site"
-    })});
+        message: "Une erreur est survenue lors de la récupération des nouveaux produits, si le problème persite veuillez contacter l'administrateur du site"
+      })
+    });
 };
 
-exports.addNewProduct = (req, res, next) => { 
+exports.addNewProduct = (req, res, next) => {
   var imagesArray = [];
+
+  // ids des images du drive 
+  var drivefilesId = [];
+
+  // Données du dossier à créer pour le drive
+  var folderMetadata = {
+    'name': req.body.product_name,
+    'mimeType': 'application/vnd.google-apps.folder'
+  };
+
+  // Création de dossier dans le drive
+  // drive.files.create({
+  //   resource: folderMetadata, 
+  //   fields: {id: 'id', name: 'name'}
+  // }, function (err, file) {
+  //   if(err) {
+  //     console.error(err)
+  //   } else {
+  //     console.log('Folder Id : ', file.data.id);
+  //     const folderId = file.data.id
+
+  //     for(image of req.files) {
+  //       let nom = image.filename
+  //       let nomSlice = nom.slice(0, nom.length - 4)
+
+  //       // uploader les images dans dossier
+  //       const filemetadata = {
+  //         name: nomSlice, 
+  //         parents: [folderId]
+  //       }
+
+  //       const media = {
+  //         mimeType: image.mimeType, 
+  //         body: fs.createReadStream(image.path)
+  //       }
+
+  //       drive.files.create({
+  //         resource: filemetadata, 
+  //         media: media,
+  //         fields: 'id'
+  //       }, (err, file) => {
+  //         if(err) throw err
+  //         let fileId = file.data.fileId
+  //         // Partager pour être vu par tous
+  //         drive.permissions.create({
+  //             fileId: fileId,
+  //             requestBody: {
+  //                 role: 'reader',
+  //                 type: 'anyone'
+  //             }
+  //         })
+  //         drive.files.get({
+  //             fileId,
+  //             fields: 'webViewLink'
+  //         })
+  //       })
+  //     }
+  //   }
+  // })
+
   req.files.forEach(element => {
     imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
   });
@@ -70,12 +131,12 @@ exports.addNewProduct = (req, res, next) => {
     .catch((error) => {
       if (error.errors.reference) {
         res.status(500).json({
-          message:"La référence " + error.errors.reference.value + " est déjà utilisée sur un autre produit"
+          message: "La référence " + error.errors.reference.value + " est déjà utilisée sur un autre produit"
         })
       }
       else if (error.errors.product_name) {
         res.status(500).json({
-          message:"Le nom du produit " + error.errors.product_name.value + " est déjà utilisé"
+          message: "Le nom du produit " + error.errors.product_name.value + " est déjà utilisé"
         })
       }
       else {
@@ -89,8 +150,8 @@ exports.addNewProduct = (req, res, next) => {
 exports.modifyProduct = (req, res, next) => {
   var imagesArray = [];
   //gestion des images en BDD
-  if(req.body.stockedImages){
-    if(Array.isArray(req.body.stockedImages)){
+  if (req.body.stockedImages) {
+    if (Array.isArray(req.body.stockedImages)) {
       req.body.stockedImages.forEach(element => {
         imagesArray.push(element)
       })
@@ -100,15 +161,16 @@ exports.modifyProduct = (req, res, next) => {
   }
 
   //gestion des images upload
-  if(req.files){
+  if (req.files) {
     req.files.forEach(element => {
       imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
     });
   }
-  
-  
-  Product.findOneAndUpdate({_id : req.body._id}, 
-    { product_name: req.body.product_name,
+
+
+  Product.findOneAndUpdate({ _id: req.body._id },
+    {
+      product_name: req.body.product_name,
       reference: req.body.reference,
       description: req.body.description,
       images: imagesArray,
@@ -118,45 +180,46 @@ exports.modifyProduct = (req, res, next) => {
       required_age: req.body.required_age,
       category: req.body.category,
       subcategory: req.body.subcategory,
-      status: req.body.status})
-      .then(() => {
-        res.status(201).json({message : `le produit "${req.body.product_name}" à été mis à jour`});
+      status: req.body.status
+    })
+    .then(() => {
+      res.status(201).json({ message: `le produit "${req.body.product_name}" à été mis à jour` });
 
-        //SUPPRESSION DES IMAGES EN BACK
-        if(req.body.deletedImages){
-          if(Array.isArray(req.body.deletedImages)){
-            req.body.deletedImages.forEach(element => {
-              const filename = element.split('/images/')[1];
-              fs.unlink(`images/${filename}`, (err) => {
-                if (err) throw err;
-                console.log(`${filename} a été supprimé`);
-              })
-            })
-          } else {
-            const filename = req.body.deletedImages.split('/images/')[1];
+      //SUPPRESSION DES IMAGES EN BACK
+      if (req.body.deletedImages) {
+        if (Array.isArray(req.body.deletedImages)) {
+          req.body.deletedImages.forEach(element => {
+            const filename = element.split('/images/')[1];
             fs.unlink(`images/${filename}`, (err) => {
               if (err) throw err;
               console.log(`${filename} a été supprimé`);
             })
-          }
-        }
-      })
-      .catch( (error) => {
-        {
-          if(error.keyValue.product_name){
-           res.status(401).json({message : `Le nom ${error.keyValue.product_name} existe déjà`})
-          }
-          else if(error.keyValue.reference) {
-           res.status(401).json({ message : `La reference ${error.keyValue.reference} existe déjà`}) 
-          }
-          else {
-            res.status(500).json( {error} )
-          }
+          })
+        } else {
+          const filename = req.body.deletedImages.split('/images/')[1];
+          fs.unlink(`images/${filename}`, (err) => {
+            if (err) throw err;
+            console.log(`${filename} a été supprimé`);
+          })
         }
       }
-      )
+    })
+    .catch((error) => {
+      {
+        if (error.keyValue.product_name) {
+          res.status(401).json({ message: `Le nom ${error.keyValue.product_name} existe déjà` })
+        }
+        else if (error.keyValue.reference) {
+          res.status(401).json({ message: `La reference ${error.keyValue.reference} existe déjà` })
+        }
+        else {
+          res.status(500).json({ error })
+        }
+      }
+    }
+    )
 };
-    
+
 
 
 exports.getpopularproduct = (req, res, next) => {
@@ -164,10 +227,10 @@ exports.getpopularproduct = (req, res, next) => {
   const reducer = (previousValue, currentValue) => previousValue + currentValue;
 
   Product.find({
-      ordered: {
-        $gt: 0
-      }
-    })
+    ordered: {
+      $gt: 0
+    }
+  })
     .then((product) => {
       product.map((ord) => {
         totalOrdered.push(ord.ordered);
@@ -178,10 +241,10 @@ exports.getpopularproduct = (req, res, next) => {
 
 
       Product.find({
-          ordered: {
-            $gt: orderedAverage
-          }
-        })
+        ordered: {
+          $gt: orderedAverage
+        }
+      })
 
         .then((popularProduct) => {
 
@@ -193,18 +256,20 @@ exports.getpopularproduct = (req, res, next) => {
         .catch((err) => {
           console.log(err)
           res.status(500).json({
-          message: "Une erreur est survenue lors de la récupération des nouveaux produits, si le problème persite veuillez contacter l'administrateur du site"
-        })});
+            message: "Une erreur est survenue lors de la récupération des nouveaux produits, si le problème persite veuillez contacter l'administrateur du site"
+          })
+        });
     })
     .catch((err) => {
       console.log(err)
       res.status(500).json({
-      message: "Une erreur est survenue lors de la récupération des produits populaires, si le problème persite veuillez contacter l'administrateur du site"
-    })});
+        message: "Une erreur est survenue lors de la récupération des produits populaires, si le problème persite veuillez contacter l'administrateur du site"
+      })
+    });
 };
 
 exports.getOneProduct = (req, res, next) => {
-  Product.findOne({_id: req.body._id})
+  Product.findOne({ _id: req.body._id })
     .then((product) => res.status(200).json({ product }))
     .catch((error) => res.status(500).json({ error }))
 }

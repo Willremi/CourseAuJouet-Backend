@@ -26,7 +26,7 @@ const drive = google.drive({
     auth: oAuth2Client
 })
 
-// Création de dossier dans le dossier
+// Création de dossier dans le drive
 // var folderMetadata = {
 //     'name': '"nom du dossier"',
 //     'mimeType': 'application/vnd.google-apps.folder'
@@ -43,45 +43,43 @@ const drive = google.drive({
 //         console.log('Folder Id: ', file.data.id);
 //         const folderId = file.data.id
 
-//         // Uploader des images dans dossier
+// for (value of req.files) {
+//     let nom = value.originalname
+//     let nomSlice = nom.slice(0, nom.length - 4)
 
-//         const filemetadata = {
-//             name: nomSlice,
-//             parents: [folderId]
-//         }
-
-//         const media = {
-//             mimeType: value.mimetype,
-//             body: fs.createReadStream(value.path)
-//         }
-
-//         drive.files.create({
-//             resource: filemetadata,
-//             media: media,
-//             fields: 'id'
-//         }, (err, file) => {
-//             if (err) throw err
-//             // console.log(file.data.id);
-//             let fileId = file.data.id
-
-//             // partager pour être vu par tous
-//             drive.permissions.create({
-//                 fileId: fileId,
-//                 requestBody: {
-//                     role: 'reader',
-//                     type: 'anyone'
-//                 }
-//             })
-//             drive.files.get({
-//                 fileId,
-//                 fields: 'webViewLink'
-//             })
-
-//         })
+//     // Uploader des images dans dossier
+//     const filemetadata = {
+//         name: nomSlice,
+//         parents: [folderId]
 //     }
-// });
 
+//     const media = {
+//         mimeType: value.mimetype,
+//         body: fs.createReadStream(value.path)
+//     }
 
-  // module.exports.oAuth2Client = oAuth2Client
-  module.exports.drive = drive
- 
+//     drive.files.create({
+//         resource: filemetadata,
+//         media: media,
+//         fields: 'id'
+//     }, (err, file) => {
+//         if (err) throw err
+//         let fileId = file.data.fileId
+
+//         // Partager pour être vu par tous
+//         drive.permissions.create({
+//             fileId: fileId,
+//             requestBody: {
+//                 role: 'reader',
+//                 type: 'anyone'
+//             }
+//         })
+//         drive.files.get({
+//             fileId,
+//             fields: 'webViewLink'
+//         })
+//     })
+// }
+
+// module.exports.oAuth2Client = oAuth2Client
+module.exports.drive = drive;
