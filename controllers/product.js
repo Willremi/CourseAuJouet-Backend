@@ -155,7 +155,9 @@ exports.modifyProduct = (req, res, next) => {
       )
 };
     
-
+exports.deleteProduct = (req) => {
+  
+}
 
 exports.getpopularproduct = (req, res, next) => {
   const totalOrdered = [];
