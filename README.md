@@ -14,6 +14,6 @@ Vous allez peut etre avoir une clé secrete differente que celle déjà mise dan
 
   - stripe login
   - appuyez sur entrée cela ouvrira une nouvelle page sur votre navigateur
-  - Entrez le login et le mot de passe (vous les retrouverez dans le fichier mailer.config.js situé dans le dossier middleware)
+  - Entrez le login et le mot de passe (vous les retrouverez dans le fichier mailer.config.js situé dans le dossier middleware, ils marchent aussi tu le site de stripe)
 
 Une fois logger essayer de relancer le serveur stripe
