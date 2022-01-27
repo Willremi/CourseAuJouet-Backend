@@ -16,7 +16,7 @@ const userSchema = mongoose.Schema({
     },
     birthday_date: {
         type: String,
-        required: true
+        required: false
     },
     phone: {
         type: Number,
@@ -29,7 +29,7 @@ const userSchema = mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: false
     },
     registration_date: {
         type: Date,
@@ -57,7 +57,16 @@ const userSchema = mongoose.Schema({
         type: String,
         unique: true
     },
-    cart: []
+    googleId: {
+        type: String,
+        required: false,
+        unique: true
+    },
+    facebookId: {
+        type: String,
+        required: false,
+        unique: true
+    }
 })
 
 userSchema.plugin(uniqueValidator);

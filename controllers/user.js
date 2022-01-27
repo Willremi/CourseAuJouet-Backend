@@ -97,7 +97,6 @@ exports.login = (req, res, next) => {
               'RANDOM_TOKEN_SECRET' ,{
                 expiresIn: `${remember ? '30d' : '1h'}`
               }
-
             )
           });
         })
@@ -175,4 +174,109 @@ exports.getOneUser = (req, res, next) => {
     }
   })
   .catch(() => res.status(500).json({ message : "une erreur est survenue"}))
+}
+exports.googleAuth = (req, res) =>{
+  
+  const token = jwt.sign({
+    email: req.body.email.toLowerCase()
+  }, confirmationCode.generateRandomCode(25), {
+    expiresIn: '24h'
+  });
+
+
+  User.findOne({email: req.body.email})
+    .then( (user) => {
+      if (user){
+        return res.status(200).json({
+
+          id_token: jwt.sign({
+              userId: user._id,
+              email: user.email,
+              role: user.role,
+            },'RANDOM_TOKEN_SECRET',
+            {expiresIn: '1h'}
+            )
+        })
+      } else {
+        const user = new User({
+          civility: "Man",
+          firstname: req.body.givenName,
+          lastname: req.body.familyName,
+          email: req.body.email,
+          registration_date: Date.now(),  
+          account_status: true,
+          googleId: req.body.googleId,
+          confirmationCode: token,
+          reset_password: token,
+          role: [{role_name: "CUSTOMER"}]
+          })
+          user.save()
+          .then(user => {
+            res.status(200).json({
+              id_token: jwt.sign({
+                userId: user._id,
+                email: user.email,
+                role: user.role,
+              },'RANDOM_TOKEN_SECRET',
+              {expiresIn: '1h'}
+              )
+            })
+          })
+          .catch(error => res.status(400).json({message: error}))
+      }
+    }).catch(error => res.status(404).json({message: error}))
+}
+
+exports.facebookAuth = (req, res) =>{
+
+  const token = jwt.sign({
+    email: req.body.email.toLowerCase()
+  }, confirmationCode.generateRandomCode(25), {
+    expiresIn: '24h'
+  });
+
+  console.log(req.body);
+  User.findOne({email: req.body.email})
+    .then( user => {
+      if (user){
+        return res.status(200).json({
+
+          id_token: jwt.sign({
+              userId: user._id,
+              email: user.email,
+              role: user.role,
+            },'RANDOM_TOKEN_SECRET',
+            {expiresIn: '1h'}
+            )
+        })
+      } else {
+        const [firstname,lastname] = req.body.name?.split(' ')
+        const user = new User({
+          civility: "Man",
+          firstname: firstname,
+          lastname: lastname,
+          email: req.body.email,
+          registration_date: Date.now(),
+          account_status: true,
+          confirmationCode: token,
+          reset_password: token,
+          facebookId: req.body.facebookId,
+          role: [{role_name: "CUSTOMER"}]
+          })
+          user.save()
+          .then(user => {
+            res.status(200).json({
+              id_token: jwt.sign({
+                userId: user._id,
+                email: user.email,
+                role: user.role,
+              },'RANDOM_TOKEN_SECRET',
+              {expiresIn: '1h'}
+              )
+            })
+          })
+          .catch(error => res.status(400).json({message: error}))
+      }
+    })
+    .catch(error => res.status(400).json({message: error}))
 }
