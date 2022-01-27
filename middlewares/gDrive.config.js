@@ -80,6 +80,14 @@ const drive = google.drive({
 //         })
 //     })
 // }
-
+// function createFolder(folderMetadata) {
+//     // var folderId
+//     drive.files.create({
+//         resource: folderMetadata,
+//         fields: { id: 'id', name: 'name' }
+//       })
+// }
 // module.exports.oAuth2Client = oAuth2Client
-module.exports.drive = drive;
+module.exports = {
+    drive
+};

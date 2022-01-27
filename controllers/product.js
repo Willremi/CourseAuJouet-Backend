@@ -1,6 +1,6 @@
 const Product = require('../models/product')
 const fs = require('fs');
-const { drive } = require('../middlewares/gDrive.config');
+const { drive, createFolder } = require('../middlewares/gDrive.config');
 
 exports.getAllProducts = (req, res, next) => {
   //
@@ -50,8 +50,86 @@ exports.addNewProduct = (req, res, next) => {
     'name': req.body.product_name,
     'mimeType': 'application/vnd.google-apps.folder'
   };
-
   // Création de dossier dans le drive
+ drive.files.create({
+    resource: folderMetadata,
+    fields: { id: 'id', name: 'name' }
+  })
+  .then((response) => {
+    let folderId = response.data.id
+    console.log("folderId", folderId);
+    req.files.forEach(element => {
+      imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
+
+      // Uploader des images dans drive
+      const fileMetadata = {
+        name: element.originalname,
+        parents: [folderId]
+      }
+
+      const media = {
+        mimeType: element.mimetype,
+        body: fs.createReadStream(element.path)
+      }
+
+      drive.files.create({
+        resource: fileMetadata,
+        media: media,
+        fields: 'id'
+      })
+      .then((response) => {
+        let idFile = response.data.id;
+        // drivefilesId.push(idFile)
+        // console.log(drivefilesId);
+      })
+      .catch(err => console.log(err))
+    });
+    // console.log(drivefilesId);
+    const product = new Product({
+      product_name: req.body.product_name,
+      reference: req.body.reference,
+      description: req.body.description,
+      images: imagesArray,
+      folderId: folderId,
+      price: req.body.price.replace(/\./g, '').replace(',', ''),
+      stock: req.body.stock,
+      trademark: req.body.trademark,
+      required_age: req.body.required_age,
+      on_sale_date: Date.now(),
+      category: req.body.category,
+      subcategory: req.body.subcategory,
+      ordered: 0,
+      status: req.body.status
+    });
+  
+    product
+      .save()
+      .then(() => {
+        res.status(201).json({
+          message: `Vous avez ajouté ${req.body.product_name} dans la catégorie ${req.body.category}`,
+        });
+      })
+      .catch((error) => {
+        if (error.errors.reference) {
+          res.status(500).json({
+            message: "La référence " + error.errors.reference.value + " est déjà utilisée sur un autre produit"
+          })
+        }
+        else if (error.errors.product_name) {
+          res.status(500).json({
+            message: "Le nom du produit " + error.errors.product_name.value + " est déjà utilisé"
+          })
+        }
+        else {
+          res.status(500).json({
+            message: "Une erreur du serveur est survenue, si le problème persite veuillez contacter l'administrateur du site"
+          })
+        }
+      });
+  })
+  .catch(err => console.log(err))
+
+ 
   // drive.files.create({
   //   resource: folderMetadata, 
   //   fields: {id: 'id', name: 'name'}
@@ -101,50 +179,6 @@ exports.addNewProduct = (req, res, next) => {
   //   }
   // })
 
-  req.files.forEach(element => {
-    imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
-  });
-
-  const product = new Product({
-    product_name: req.body.product_name,
-    reference: req.body.reference,
-    description: req.body.description,
-    images: imagesArray,
-    price: req.body.price.replace(/\./g, '').replace(',', ''),
-    stock: req.body.stock,
-    trademark: req.body.trademark,
-    required_age: req.body.required_age,
-    on_sale_date: Date.now(),
-    category: req.body.category,
-    subcategory: req.body.subcategory,
-    ordered: 0,
-    status: req.body.status
-  });
-
-  product
-    .save()
-    .then(() => {
-      res.status(201).json({
-        message: `Vous avez ajouté ${req.body.product_name} dans la catégorie ${req.body.category}`,
-      });
-    })
-    .catch((error) => {
-      if (error.errors.reference) {
-        res.status(500).json({
-          message: "La référence " + error.errors.reference.value + " est déjà utilisée sur un autre produit"
-        })
-      }
-      else if (error.errors.product_name) {
-        res.status(500).json({
-          message: "Le nom du produit " + error.errors.product_name.value + " est déjà utilisé"
-        })
-      }
-      else {
-        res.status(500).json({
-          message: "Une erreur du serveur est survenue, si le problème persite veuillez contacter l'administrateur du site"
-        })
-      }
-    });
 };
 
 exports.modifyProduct = (req, res, next) => {
