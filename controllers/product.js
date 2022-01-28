@@ -1,6 +1,6 @@
 const Product = require('../models/product')
 const fs = require('fs');
-const { drive, createFolder } = require('../middlewares/gDrive.config');
+const { drive } = require('../middlewares/gDrive.config');
 
 exports.getAllProducts = (req, res, next) => {
   //
