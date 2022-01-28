@@ -21,8 +21,8 @@ exports.register = (req, res, next) => {
     .then(hash => {
       const user = new User({
         civility: req.body.civility,
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
+        firstname: req.body.firstName,
+        lastname: req.body.lastName,
         birthday_date: req.body.birthday_date,
         phone: req.body.phone,
         email: req.body.email.toLowerCase(),
@@ -37,7 +37,7 @@ exports.register = (req, res, next) => {
       user.save()
         .then((user) => {
           res.status(201).json({
-            message: "Vous avez été enregistré, verifiez vos e-mail afin de confirmer votre inscription !"
+            message: "Votre inscription a bien été prise en compte, veuillez verifier vos e-mail afin de finaliser votre inscription !"
           })
           sendConfirmationEmail(user.firstname, user.email.toLowerCase(), user.confirmationCode)
         })
@@ -60,9 +60,9 @@ exports.verifyUser = (req, res, next) => {
       }]
   })
   .then(() => {
-    res.status(200).json({ message : "Veuillez vous logger"})
+    res.status(200).json({ message : "Merci de vous êtes inscrit sur notre site, vous pouvez à présent vous connecter a votre compte"})
   })
-  .catch( error => res.status(500).json({ error }))
+  .catch( error => res.status(500).json({ message:"Votre code de confirmation est expiré" }))
 }
 
 
@@ -74,14 +74,14 @@ exports.login = (req, res, next) => {
     .then(user => {
       if (!user) {
         return res.status(401).json({
-          error: 'Utilisateur non trouvé !'
+          message: 'Utilisateur non trouvé !'
         });
       }
       bcrypt.compare(req.body.password, user.password)
         .then(valid => {
           if (!valid) {
             return res.status(401).json({
-              error: 'Mot de passe incorrect !'
+              message: 'Mot de passe incorrect !'
             });
           }
           
@@ -89,6 +89,7 @@ exports.login = (req, res, next) => {
 
             id_token: jwt.sign({
                 userId: user._id,
+                firstName : user.firstname,
                 email: user.email,
                 role: user.role,
                 rememberMe: remember
@@ -96,7 +97,6 @@ exports.login = (req, res, next) => {
               'RANDOM_TOKEN_SECRET' ,{
                 expiresIn: `${remember ? '30d' : '1h'}`
               }
-
             )
           });
         })
@@ -128,9 +128,11 @@ exports.sendEmailResetPassword = (req, res, next) => {
         message: "Un email vous a été envoyé"
       })
     })
-    .catch(error => res.status(500).json({
-      error
-    }))
+    .catch(error => {
+      console.log(error)
+      res.status(500).json({
+      message: "Une erreur s'est produite, si le problème persite contactez l'administrateur du site"
+    })})
 }
 
 exports.validResetPassword = (req, res, next) => {
@@ -159,4 +161,122 @@ exports.validResetPassword = (req, res, next) => {
       error
     }))
 
+}
+
+exports.getOneUser = (req, res, next) => {
+  User.findOne({ _id: req.params.id})
+  .then((user) => {
+    if(!user){
+      res.status(404).json({ message : "Utilisateur non connecté/inscrit"})
+    }
+    else {
+      res.status(200).json({ user })
+    }
+  })
+  .catch(() => res.status(500).json({ message : "une erreur est survenue"}))
+}
+exports.googleAuth = (req, res) =>{
+  
+  const token = jwt.sign({
+    email: req.body.email.toLowerCase()
+  }, confirmationCode.generateRandomCode(25), {
+    expiresIn: '24h'
+  });
+
+
+  User.findOne({email: req.body.email})
+    .then( (user) => {
+      if (user){
+        return res.status(200).json({
+
+          id_token: jwt.sign({
+              userId: user._id,
+              email: user.email,
+              role: user.role,
+            },'RANDOM_TOKEN_SECRET',
+            {expiresIn: '1h'}
+            )
+        })
+      } else {
+        const user = new User({
+          civility: "Man",
+          firstname: req.body.givenName,
+          lastname: req.body.familyName,
+          email: req.body.email,
+          registration_date: Date.now(),  
+          account_status: true,
+          googleId: req.body.googleId,
+          confirmationCode: token,
+          reset_password: token,
+          role: [{role_name: "CUSTOMER"}]
+          })
+          user.save()
+          .then(user => {
+            res.status(200).json({
+              id_token: jwt.sign({
+                userId: user._id,
+                email: user.email,
+                role: user.role,
+              },'RANDOM_TOKEN_SECRET',
+              {expiresIn: '1h'}
+              )
+            })
+          })
+          .catch(error => res.status(400).json({message: error}))
+      }
+    }).catch(error => res.status(404).json({message: error}))
+}
+
+exports.facebookAuth = (req, res) =>{
+
+  const token = jwt.sign({
+    email: req.body.email.toLowerCase()
+  }, confirmationCode.generateRandomCode(25), {
+    expiresIn: '24h'
+  });
+
+  console.log(req.body);
+  User.findOne({email: req.body.email})
+    .then( user => {
+      if (user){
+        return res.status(200).json({
+
+          id_token: jwt.sign({
+              userId: user._id,
+              email: user.email,
+              role: user.role,
+            },'RANDOM_TOKEN_SECRET',
+            {expiresIn: '1h'}
+            )
+        })
+      } else {
+        const [firstname,lastname] = req.body.name?.split(' ')
+        const user = new User({
+          civility: "Man",
+          firstname: firstname,
+          lastname: lastname,
+          email: req.body.email,
+          registration_date: Date.now(),
+          account_status: true,
+          confirmationCode: token,
+          reset_password: token,
+          facebookId: req.body.facebookId,
+          role: [{role_name: "CUSTOMER"}]
+          })
+          user.save()
+          .then(user => {
+            res.status(200).json({
+              id_token: jwt.sign({
+                userId: user._id,
+                email: user.email,
+                role: user.role,
+              },'RANDOM_TOKEN_SECRET',
+              {expiresIn: '1h'}
+              )
+            })
+          })
+          .catch(error => res.status(400).json({message: error}))
+      }
+    })
+    .catch(error => res.status(400).json({message: error}))
 }
