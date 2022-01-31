@@ -157,7 +157,6 @@ exports.modifyProduct = (req, res, next) => {
 };
     
 exports.deleteProduct = (req, res) => {
-
   const productToArchive = new productArchive({
     product_name: req.body.product_name,
     reference: req.body.reference,
@@ -193,13 +192,29 @@ exports.deleteProduct = (req, res) => {
 }
 
 exports.deleteManyProducts = (req, res) => {
-  console.log(req.body);
-  //recuperation du tableau de produits à supprimer
-  let productToDelete = []
-  req.body.forEach( element => {
-    productToDelete.push(element._id)
+  let ProductToDeleteArray = [] // Array pour push les ID et effacer tous les produits en une req
+  const productsToDelete = req.body
+  productsToDelete.forEach(element => {
+    const productToArchive = new productArchive({
+      product_name: element.product_name,
+      reference: element.reference,
+      description: element.description,
+      images: element.images,
+      price: element.price,
+      stock: element.stock,
+      trademark: element.trademark,
+      required_age: element.required_age,
+      on_sale_date: element.on_sale_date,
+      category: element.category,
+      subcategory: element.subcategory,
+      ordered: element.ordered,
+      status: element.status,
+      previousId: element._id
+    });
+    productToArchive.save()
+    ProductToDeleteArray.push(element._id)
   })
-  Product.deleteMany({_id:{$in: productToDelete}} )
+  Product.deleteMany({_id:{$in: ProductToDeleteArray}} )
   .then(() => {
     res.status(201).json({
       message: "Les articles ont été supprimés",
@@ -209,6 +224,7 @@ exports.deleteManyProducts = (req, res) => {
     res.status(404).json({message: error})
   })
 }
+
 
 exports.getpopularproduct = (req, res, next) => {
   const totalOrdered = [];
