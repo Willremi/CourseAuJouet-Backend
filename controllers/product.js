@@ -91,8 +91,11 @@ exports.addNewProduct = (req, res, next) => {
           fields: { id: 'id', name: 'name' }
         })
         // console.log(result.data);
-        drivefilesId.push(result.data.id)
-        console.log(drivefilesId);
+        let idFiles = result.data.id
+        
+        // Partage d'images vues par tous
+        shareFiles(idFiles)
+        
       }
       upload()
     });
