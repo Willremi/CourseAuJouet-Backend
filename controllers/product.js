@@ -1,6 +1,6 @@
 const Product = require('../models/product')
 const fs = require('fs');
-const { drive } = require('../middlewares/gDrive.config');
+const { drive, shareFiles } = require('../middlewares/gDrive.config');
 
 exports.getAllProducts = (req, res, next) => {
   //
@@ -16,7 +16,7 @@ exports.getAllProducts = (req, res, next) => {
     })
 }
 
-exports.getNewProduct = (req, res, next) => {
+exports.getNewProduct = async (req, res, next) => {
   Product.aggregate([{
     $sort: {
       on_sale_date: -1,
@@ -57,7 +57,7 @@ exports.addNewProduct = (req, res, next) => {
   })
   .then((response) => {
     let folderId = response.data.id
-    console.log("folderId", folderId);
+    // console.log("folderId", folderId);
     req.files.forEach(element => {
       imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
 
@@ -72,20 +72,31 @@ exports.addNewProduct = (req, res, next) => {
         body: fs.createReadStream(element.path)
       }
 
-      drive.files.create({
-        resource: fileMetadata,
-        media: media,
-        fields: 'id'
-      })
-      .then((response) => {
-        let idFile = response.data.id;
-        // drivefilesId.push(idFile)
-        // console.log(drivefilesId);
-        // Voir response.data.status pour le problème de reception des données pusher
-      })
-      .catch(err => console.log(err))
+      // drive.files.create({
+      //   resource: fileMetadata,
+      //   media: media,
+      //   fields: { id: 'id', name: 'name' }
+      // })
+      // .then((response) => {
+      //   let idFile = response.data.id;
+
+      //   // Partage d'images vues par tous
+      //   shareFiles(idFile)    
+      // })
+      // .catch(err => console.log(err))
+      async function upload() {
+        const result = await drive.files.create({
+          resource: fileMetadata,
+          media: media,
+          fields: { id: 'id', name: 'name' }
+        })
+        // console.log(result.data);
+        drivefilesId.push(result.data.id)
+        console.log(drivefilesId);
+      }
+      upload()
     });
-    // console.log(drivefilesId);
+    
     const product = new Product({
       product_name: req.body.product_name,
       reference: req.body.reference,
