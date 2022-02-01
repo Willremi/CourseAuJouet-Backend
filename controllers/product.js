@@ -1,5 +1,6 @@
 const Product = require('../models/product')
 const fs = require('fs');
+const productArchive = require('../models/productArchive');
 exports.getAllProducts = (req, res, next) => {
   
   Product.find()
@@ -155,6 +156,74 @@ exports.modifyProduct = (req, res, next) => {
       )
 };
     
+exports.deleteProduct = (req, res) => {
+  const productToArchive = new productArchive({
+    product_name: req.body.product_name,
+    reference: req.body.reference,
+    description: req.body.description,
+    images: req.body.images,
+    price: req.body.price,
+    stock: req.body.stock,
+    trademark: req.body.trademark,
+    required_age: req.body.required_age,
+    on_sale_date: req.body.on_sale_date,
+    category: req.body.category,
+    subcategory: req.body.subcategory,
+    ordered: req.body.ordered,
+    status: req.body.status,
+    previousId: req.body._id
+  });
+
+  productToArchive.save()
+  .then(() => {
+    Product.findByIdAndDelete(req.body._id)
+    .then(() => {
+      res.status(201).json({
+        message: `Vous avez supprimé ${req.body.product_name}`,
+      });
+    })
+    .catch((error) =>{
+      res.status(404).json({message: error})
+    })
+  })
+  .catch((error) => {
+    res.status(404).json({message : error})
+  })
+}
+
+exports.deleteManyProducts = (req, res) => {
+  let ProductToDeleteArray = [] // Array pour push les ID et effacer tous les produits en une req
+  const productsToDelete = req.body
+  productsToDelete.forEach(element => {
+    const productToArchive = new productArchive({
+      product_name: element.product_name,
+      reference: element.reference,
+      description: element.description,
+      images: element.images,
+      price: element.price,
+      stock: element.stock,
+      trademark: element.trademark,
+      required_age: element.required_age,
+      on_sale_date: element.on_sale_date,
+      category: element.category,
+      subcategory: element.subcategory,
+      ordered: element.ordered,
+      status: element.status,
+      previousId: element._id
+    });
+    productToArchive.save()
+    ProductToDeleteArray.push(element._id)
+  })
+  Product.deleteMany({_id:{$in: ProductToDeleteArray}} )
+  .then(() => {
+    res.status(201).json({
+      message: "Les articles ont été supprimés",
+    });
+  })
+  .catch((error) =>{
+    res.status(404).json({message: error})
+  })
+}
 
 
 exports.getpopularproduct = (req, res, next) => {

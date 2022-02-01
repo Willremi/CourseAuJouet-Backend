@@ -10,5 +10,8 @@ router.get('/getallproduct', auth, managerAuth, productCtrl.getAllProducts);
 router.get('/getnewproduct', productCtrl.getNewProduct);
 router.post('/addnewproduct', auth, managerAuth, multer, productCtrl.addNewProduct);
 router.get('/getpopularproduct', productCtrl.getpopularproduct);
-router.get('/getoneproduct/:id', productCtrl.getOneProduct)
+router.get('/getoneproduct/:id', productCtrl.getOneProduct);
+router.post('/deleteproduct', productCtrl.deleteProduct);
+router.post('/deletemanyproducts', productCtrl.deleteManyProducts);
+
 module.exports = router;
