@@ -55,21 +55,6 @@ async function listFile() {
 }
 // listFile()
 
-    drive.files.list({
-        q: `'${idFolder}' in parents`,
-        fields: "files(id, name)"
-    }).then((res) => {
-        // console.log(res.data.files)
-        let fichiers = res.data.files
-        fichiers.forEach(
-            item => tableau.push(item.id)
-        )
-        // console.log(fichiers);
-        // console.log("tableau : ", tableau);
-    })
-    .catch(err => console.log(err))
-
-// list(idFolder)
 module.exports = {
     drive,
     shareFiles
