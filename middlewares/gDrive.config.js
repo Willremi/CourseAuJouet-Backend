@@ -39,7 +39,9 @@ function shareFiles(fileId) {
         fields: 'webViewLink'
     })
 }
+
 let idFolder = '1fmOhPjyD_JTzjS6LnaHHH9FFi215Ml4Z'
+let folderName = 'Mega Drive Mini'
 let tableau = []
 async function listFile() {
     const res = await drive.files.list({
@@ -54,6 +56,7 @@ async function listFile() {
     console.log(tableau);
 }
 // listFile()
+
 
 module.exports = {
     drive,

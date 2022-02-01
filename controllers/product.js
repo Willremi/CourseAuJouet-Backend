@@ -2,10 +2,11 @@ const Product = require('../models/product')
 const fs = require('fs');
 const { drive, shareFiles } = require('../middlewares/gDrive.config');
 
+// Traitement avec l'API Google Drive
 async function upload(element, folderId) {
   const fileMetadata = {
-    name: element.originalname,
-    parents: [folderId],
+    name: element.filename,
+    parents: folderId ? [folderId] : [],
   };
 
   const media = {
@@ -13,6 +14,7 @@ async function upload(element, folderId) {
     body: fs.createReadStream(element.path),
   };
 
+  // Upload des images dans le Drive
   const result = await drive.files.create({
     resource: fileMetadata,
     media: media,
@@ -43,6 +45,21 @@ const createFolder = async (product_name) => {
     });
 };
 
+const folder = async (product_name) => {
+  // Recherche de dossier existant dans le drive
+  const result = await drive.files.list({
+    q: `mimeType='application/vnd.google-apps.folder' and name='${product_name}'`,
+    fields: "files(id, name)"
+  })
+  let idFolderSearch = result.data.files[0].id
+  console.log("idFolderSearch", idFolderSearch);
+  return result.data.files ? idFolderSearch : null;
+}
+
+if(!folder) {
+  folder = createFolder(product_name)
+}
+// console.log(folder('Mega Drive Mini'));
 
 exports.getAllProducts = (req, res, next) => {
   //
@@ -151,8 +168,17 @@ exports.addNewProduct = async (req, res, next) => {
   });
 };
 
-exports.modifyProduct = (req, res, next) => {
+exports.modifyProduct = async (req, res, next) => {
   var imagesArray = [];
+
+  // ids des images du drive
+  var drivefilesId = [];
+
+  let folderId = await folder(req.body.product_name)
+  console.log("folderId", folderId);
+
+  const promises = [];
+
   //gestion des images en BDD
   if (req.body.stockedImages) {
     if (Array.isArray(req.body.stockedImages)) {
@@ -166,11 +192,11 @@ exports.modifyProduct = (req, res, next) => {
 
   //gestion des images upload
   if (req.files) {
-    req.files.forEach(element => {
+    req.files.forEach((element, index) => {
       imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
+      // promises.push(upload(element, folderId, drivefilesId))
     });
   }
-
 
   Product.findOneAndUpdate({ _id: req.body._id },
     {
