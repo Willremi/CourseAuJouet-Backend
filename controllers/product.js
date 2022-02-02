@@ -56,9 +56,9 @@ const folder = async (product_name) => {
   return result.data.files ? idFolderSearch : null;
 }
 
-if(!folder) {
-  folder = createFolder(product_name)
-}
+// if(!folder) {
+//   folder = createFolder(product_name)
+// }
 // console.log(folder('Mega Drive Mini'));
 
 exports.getAllProducts = (req, res, next) => {
@@ -112,7 +112,7 @@ exports.addNewProduct = async (req, res, next) => {
     imagesArray.push(
       `${req.protocol}://${req.get("host")}/images/${element.filename}`
     );
-    promises.push(upload(element, folderId, drivefilesId));
+    // promises.push(upload(element, folderId, drivefilesId));
   });
 
   Promise.all(promises).then((response) => {
@@ -194,7 +194,7 @@ exports.modifyProduct = async (req, res, next) => {
   if (req.files) {
     req.files.forEach((element, index) => {
       imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
-      // promises.push(upload(element, folderId, drivefilesId))
+      promises.push(upload(element, folderId, drivefilesId))
     });
   }
 
@@ -204,7 +204,7 @@ exports.modifyProduct = async (req, res, next) => {
       reference: req.body.reference,
       description: req.body.description,
       images: imagesArray,
-      price: req.body.price,
+      price: req.body.price.replace(/\./g, "").replace(",", ""),
       stock: req.body.stock,
       trademark: req.body.trademark,
       required_age: req.body.required_age,
