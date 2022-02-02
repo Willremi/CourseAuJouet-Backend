@@ -6,7 +6,7 @@ const { drive, shareFiles } = require('../middlewares/gDrive.config');
 async function upload(element, folderId) {
   const fileMetadata = {
     name: element.filename,
-    parents: folderId,
+    parents: [folderId],
   };
 
   const media = {
