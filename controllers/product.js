@@ -6,7 +6,7 @@ const { drive, shareFiles } = require('../middlewares/gDrive.config');
 async function upload(element, folderId) {
   const fileMetadata = {
     name: element.filename,
-    parents: folderId ? [folderId] : [],
+    parents: folderId,
   };
 
   const media = {
@@ -42,6 +42,7 @@ const createFolder = async (product_name) => {
     })
     .then((response) => {
       return response.data.id;
+      // return response.data;
     });
 };
 
@@ -56,10 +57,6 @@ const folder = async (product_name) => {
   return result.data.files ? idFolderSearch : null;
 }
 
-// if(!folder) {
-//   folder = createFolder(product_name)
-// }
-// console.log(folder('Mega Drive Mini'));
 
 exports.getAllProducts = (req, res, next) => {
   //
@@ -112,7 +109,7 @@ exports.addNewProduct = async (req, res, next) => {
     imagesArray.push(
       `${req.protocol}://${req.get("host")}/images/${element.filename}`
     );
-    // promises.push(upload(element, folderId, drivefilesId));
+    promises.push(upload(element, folderId, drivefilesId));
   });
 
   Promise.all(promises).then((response) => {
@@ -174,9 +171,10 @@ exports.modifyProduct = async (req, res, next) => {
   // ids des images du drive
   var drivefilesId = [];
 
-  let folderId = await folder(req.body.product_name)
-  console.log("folderId", folderId);
-
+  // si dossier existe
+  // let folderId = await folder(req.body.product_name)
+  // console.log("folderId", folderId);
+  
   const promises = [];
 
   //gestion des images en BDD
@@ -194,7 +192,7 @@ exports.modifyProduct = async (req, res, next) => {
   if (req.files) {
     req.files.forEach((element, index) => {
       imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
-      promises.push(upload(element, folderId, drivefilesId))
+      // promises.push(upload(element, folderId, drivefilesId))
     });
   }
 

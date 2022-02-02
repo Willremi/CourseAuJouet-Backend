@@ -57,6 +57,42 @@ async function listFile() {
 }
 // listFile()
 
+/**
+ * Suppression des fichiers ou dossiers
+ * @param {string} id id d'un fichier(idFile) ou dossier (folderId)
+ */
+async function suppression(id) {
+    await drive.files.delete({
+        'fileId': id
+    })
+    console.log(`l'élément ${id} a bien été supprimé`);
+}
+
+// suppression("1BeflO2Tvp3t9DPmMPh4KqVL8bXjWLQOC")
+
+// Si dossier produit n'existe pas (à faire)
+// async function searchFolder(folderName) {
+//     return new Promise((resolve, reject) => {
+//         drive.files.list(
+//           {
+//             q: `mimeType='application/vnd.google-apps.folder' and name='${folderName}'`,
+//             fields: 'files(id, name)',
+//           },
+//           (err, res) => {
+//             if (err) {
+//               return reject(err);
+//             }
+  
+//             return resolve(res.data.files ? res.data.files[0] : null);
+//           },
+//         );
+//       });
+// }
+
+// let folder = searchFolder(folderName).catch((err) => {
+//     console.log(err);
+//     return null
+// })
 
 module.exports = {
     drive,
