@@ -172,8 +172,8 @@ exports.modifyProduct = async (req, res, next) => {
   var drivefilesId = [];
 
   // si dossier existe
-  // let folderId = await folder(req.body.product_name)
-  // console.log("folderId", folderId);
+  let folderId = await folder(req.body.product_name)
+  console.log("folderId", folderId);
   
   const promises = [];
 
