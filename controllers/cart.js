@@ -45,7 +45,7 @@ exports.AddToCart = (req, res, next) => {
                             _id: req.body.userId
                         })
                         .then(() => {
-                            res.status(200).json({
+                            res.status(201).json({
                                 message: `Vous avez ajouté le produit dans votre panier`
                             })
                         })
@@ -82,7 +82,7 @@ exports.RemoveOneProduct = (req, res, next) => {
                     cart: userCart,
                     _id: req.body.userId
                 })
-                .then(() => res.status(200).json({
+                .then(() => res.status(201).json({
                     message: "Produit supprimé du panier !"
                 }))
                 .catch((error) => res.status(500).json({

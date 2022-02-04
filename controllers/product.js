@@ -78,7 +78,7 @@ exports.getpopularproduct = (req, res, next) => {
 
         .then((popularProduct) => {
 
-          res.status(201).json({ popularProduct });
+          res.status(200).json({ popularProduct });
         })
 
         .catch((err) => res.status(500).json({ err }));

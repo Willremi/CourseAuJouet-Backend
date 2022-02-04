@@ -61,7 +61,7 @@ exports.verifyUser = (req, res, next) => {
       }]
     })
     .then(() => {
-      res.status(200).json({ message: "Veuillez vous logger" })
+      res.status(201).json({ message: "Veuillez vous logger" })
     })
     .catch(error => res.status(500).json({ error }))
 }
@@ -130,7 +130,7 @@ exports.sendEmailResetPassword = (req, res, next) => {
   })
     .then((user) => {
       sendConfirmationResetPassword(user.email.toLowerCase(), token)
-      res.status(200).json({
+      res.status(201).json({
         message: "Un email vous a été envoyé"
       })
     })
@@ -153,7 +153,7 @@ exports.validResetPassword = (req, res, next) => {
           if (!user) {
             return res.status(404).json({ message: "Utilisateur inconnu !" })
           }
-          res.status(200).json({
+          res.status(201).json({
             message: "Mot de passe modifié"
           })
         })
