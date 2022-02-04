@@ -11,6 +11,6 @@ router.post('/reset-password', userCtrl.sendEmailResetPassword);
 router.post('/valid-reset-password/:id', userCtrl.validResetPassword);
 router.post('/auth/google', userCtrl.googleAuth)
 router.post('/auth/facebook', userCtrl.facebookAuth)
-
+router.patch('/editprofil/:id', userCtrl.editProfil)
 
 module.exports = router;
