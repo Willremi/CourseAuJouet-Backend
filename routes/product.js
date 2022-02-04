@@ -5,7 +5,7 @@ const auth = require('../middlewares/auth');
 const managerAuth = require('../middlewares/managerAuth');
 const multer = require('../middlewares/multer-config')
 
-router.get('/getoneproduct', productCtrl.getOneProduct);
+router.get('/getoneproduct/:id', productCtrl.getOneProduct);
 router.post('/modifyproduct', auth, multer, productCtrl.modifyProduct);
 router.get('/getallproduct', auth, managerAuth, productCtrl.getAllProducts);
 router.get('/getnewproduct', productCtrl.getNewProduct);
