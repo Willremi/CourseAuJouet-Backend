@@ -96,5 +96,6 @@ async function suppression(id) {
 
 module.exports = {
     drive,
-    shareFiles
+    shareFiles, 
+    suppression
 };

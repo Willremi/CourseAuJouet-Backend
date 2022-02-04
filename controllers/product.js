@@ -174,7 +174,7 @@ exports.modifyProduct = async (req, res, next) => {
   // si dossier existe
   let folderId = await folder(req.body.product_name)
   console.log("folderId", folderId);
-  
+
   const promises = [];
 
   //gestion des images en BDD
@@ -192,9 +192,64 @@ exports.modifyProduct = async (req, res, next) => {
   if (req.files) {
     req.files.forEach((element, index) => {
       imagesArray.push(`${req.protocol}://${req.get('host')}/images/${element.filename}`)
-      // promises.push(upload(element, folderId, drivefilesId))
+      promises.push(upload(element, folderId, drivefilesId))
     });
   }
+
+  // Promise.all(promises).then((response) => {
+  //   console.log('response updateProd(driveFilesId)', response);
+
+  //   Product.findByIdAndUpdate({ _id: req.body._id },
+  //     {
+  //       product_name: req.body.product_name,
+  //       reference: req.body.reference,
+  //       description: req.body.description,
+  //       images: imagesArray,
+  //       driveFilesId: response,
+  //       folderId: folderId,
+  //       price: req.body.price.replace(/\./g, "").replace(",", ""),
+  //       stock: req.body.stock,
+  //       trademark: req.body.trademark,
+  //       required_age: req.body.required_age,
+  //       category: req.body.category,
+  //       subcategory: req.body.subcategory,
+  //       status: req.body.status
+  //     })
+  //     .then(() => {
+  //       res.status(201).json({ message: `le produit "${req.body.product_name}" à été mis à jour` });
+
+  //       //SUPPRESSION DES IMAGES EN BACK
+  //       if (req.body.deletedImages) {
+  //         if (Array.isArray(req.body.deletedImages)) {
+  //           req.body.deletedImages.forEach(element => {
+  //             console.log('deletedImages', element);
+  //             const filename = element.split('/images/')[1];
+  //             fs.unlink(`images/${filename}`, (err) => {
+  //               if (err) throw err;
+  //               console.log(`${filename} a été supprimé`);
+  //             })
+  //           })
+  //         } else {
+  //           const filename = req.body.deletedImages.split('/images/')[1];
+  //           fs.unlink(`images/${filename}`, (err) => {
+  //             if (err) throw err;
+  //             console.log(`${filename} a été supprimé`);
+  //           })
+  //         }
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       if (error.keyValue.product_name) {
+  //         res.status(401).json({ message: `Le nom ${error.keyValue.product_name} existe déjà` })
+  //       }
+  //       else if (error.keyValue.reference) {
+  //         res.status(401).json({ message: `La reference ${error.keyValue.reference} existe déjà` })
+  //       }
+  //       else {
+  //         res.status(500).json({ error })
+  //       }
+  //     })
+  // });
 
   Product.findOneAndUpdate({ _id: req.body._id },
     {
