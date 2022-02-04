@@ -13,5 +13,5 @@ router.get('/getpopularproduct', productCtrl.getpopularproduct);
 router.get('/getoneproduct/:id', productCtrl.getOneProduct);
 router.post('/deleteproduct', productCtrl.deleteProduct);
 router.post('/deletemanyproducts', productCtrl.deleteManyProducts);
-
+router.post('/modifystock', productCtrl.changeStockForOneProduct);
 module.exports = router;

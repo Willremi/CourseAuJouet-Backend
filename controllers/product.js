@@ -275,3 +275,18 @@ exports.getOneProduct = (req, res, next) => {
     .then((product) => res.status(200).json({ product }))
     .catch((error) => res.status(500).json({ error }))
 }
+
+exports.changeStockForOneProduct = (req, res) => {
+  console.log(req.body);
+  Product.findByIdAndUpdate(req.body.id,{
+    stock: req.body.stock
+  })
+  .then(() => {
+    res.status(201).json({
+      message: "Le stock a été mis à jour",
+    });
+  })
+  .catch((error) =>{
+    res.status(404).json({message: error})
+  })
+}
