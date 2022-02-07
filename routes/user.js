@@ -9,6 +9,7 @@ router.get('/confirm_register/:confirmationCode', userCtrl.verifyUser);
 router.get('/getoneuser/:id', auth, userCtrl.getOneUser);
 router.post('/reset-password', userCtrl.sendEmailResetPassword);
 router.post('/valid-reset-password/:id', userCtrl.validResetPassword);
+router.post('/changepassword', auth,  userCtrl.changePassword)
 router.post('/auth/google', userCtrl.googleAuth)
 router.post('/auth/facebook', userCtrl.facebookAuth)
 router.patch('/editprofil/:id', userCtrl.editProfil)

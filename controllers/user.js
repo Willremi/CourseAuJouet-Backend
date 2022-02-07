@@ -6,6 +6,7 @@ const {
   sendConfirmationEmail,
   sendConfirmationResetPassword
 } = require('../middlewares/nodemailer.config');
+const { updateOne } = require('../models/user');
 
 
 
@@ -181,7 +182,7 @@ exports.getOneUser = (req, res, next) => {
   })
   .catch(() => res.status(500).json({ message : "une erreur est survenue"}))
 }
-exports.googleAuth = (req, res) =>{
+exports.googleAuth = (req, res) => {
   
   const token = jwt.sign({
     email: req.body.email.toLowerCase()
@@ -316,4 +317,26 @@ exports.editProfil = (req, res, next) => {
 
     }
   });
+}
+
+exports.changePassword = async (req, res) =>  {
+  //req.body est un tableau: [0] = userId et [1] = form de changement de MDP
+  const newPassword = await bcrypt.hash(req.body[1].password, 10);
+  User.findById( req.body[0] )
+  .then( user => {
+    if(!user){
+      return res.status(401).json({message: 'utilisateur non trouvé'})
+    }
+    bcrypt.compare(req.body[1].oldPassword,user.password)
+    .then(valid => {
+      if (!valid) {
+        return res.status(401).json({message: "mdp incorrect"})
+      } else {
+        User.findByIdAndUpdate(req.body[0], {
+          password: newPassword
+        })
+        .then(res.status(201).json({message: "mot de passe mis à jour"}))          
+      }
+    }).catch(error => res.status(400).json({message: error}))
+  }).catch(error => res.status(400).json({message: error}))
 }
