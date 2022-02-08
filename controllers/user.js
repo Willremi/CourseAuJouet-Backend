@@ -6,7 +6,6 @@ const {
   sendConfirmationEmail,
   sendConfirmationResetPassword
 } = require('../middlewares/nodemailer.config');
-const { updateOne } = require('../models/user');
 
 
 
@@ -330,12 +329,12 @@ exports.changePassword = async (req, res) =>  {
     bcrypt.compare(req.body[1].oldPassword,user.password)
     .then(valid => {
       if (!valid) {
-        return res.status(401).json({message: "mdp incorrect"})
+        return res.status(401).json({message: "Le mot de passe est incorrect"})
       } else {
         User.findByIdAndUpdate(req.body[0], {
           password: newPassword
         })
-        .then(res.status(201).json({message: "mot de passe mis à jour"}))          
+        .then(res.status(200).json({message: "Le mot de passe mis à jour"}))                   
       }
     }).catch(error => res.status(400).json({message: error}))
   }).catch(error => res.status(400).json({message: error}))
