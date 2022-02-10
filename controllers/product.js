@@ -384,3 +384,12 @@ exports.changeStockForOneProduct = (req, res) => {
     res.status(404).json({message: error})
   })
 }
+
+exports.getProductByCategory = (req, res) => {
+  console.log(req.body);
+  Product.find({"category":{$eq: req.body.category}})
+    .then((products) => {
+      res.status(200).json({products})
+    })
+    .catch((error) => res.status(500).json({error}))
+}

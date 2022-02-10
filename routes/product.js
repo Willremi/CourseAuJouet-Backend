@@ -14,4 +14,5 @@ router.get('/getoneproduct/:id', productCtrl.getOneProduct);
 router.post('/deleteproduct', productCtrl.deleteProduct);
 router.post('/deletemanyproducts', productCtrl.deleteManyProducts);
 router.post('/modifystock', productCtrl.changeStockForOneProduct);
+router.post('/getbycategory',productCtrl.getProductByCategory)
 module.exports = router;
