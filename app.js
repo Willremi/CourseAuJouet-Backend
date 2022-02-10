@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
@@ -6,7 +7,10 @@ const userRoutes = require('./routes/user')
 const cartRoute = require('./routes/cart')
 const productRoute = require('./routes/product')
 const searchRoute = require('./routes/search')
-const carouselRoute = require('./routes/carousel')
+const carouselRoute = require('./routes/carousel');
+const paymentRoute = require('./routes/payment');
+const orderRoute  = require('./routes/order');
+const webhookRoute = require('./routes/webhook');
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -23,13 +27,24 @@ mongoose.connect('mongodb+srv://ENDOR:tJMORaTVs92tSOrI@sopeckoko.tum3a.mongodb.n
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 app.use(express.urlencoded({ extended : true }));
-app.use(express.json());
 
+app.use((req, res, next) => {
+  if(req.originalUrl !== '/api/webhook'){
+    express.json()(req, res, next)
+  } else {
+    next();
+  }
+})
+
+
+app.use('/api', express.raw({type: 'application/json'}), webhookRoute);
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api', userRoutes);
 app.use('/api', cartRoute);
 app.use('/api', productRoute);
 app.use('/api', searchRoute);
 app.use('/api', carouselRoute);
+app.use('/api', paymentRoute);
+app.use('/api', orderRoute);
 
 module.exports = app
