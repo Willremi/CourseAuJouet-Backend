@@ -13,5 +13,9 @@ router.post('/changepassword', auth,  userCtrl.changePassword)
 router.post('/auth/google', userCtrl.googleAuth)
 router.post('/auth/facebook', userCtrl.facebookAuth)
 router.patch('/editprofil/:id', userCtrl.editProfil)
+router.patch('/editprofil/:id', userCtrl.editProfil)
+router.post('/auth/google', userCtrl.googleAuth)
+router.post('/auth/facebook', userCtrl.facebookAuth)
+
 
 module.exports = router;

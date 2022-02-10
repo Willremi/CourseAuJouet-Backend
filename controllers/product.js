@@ -344,9 +344,8 @@ exports.getpopularproduct = (req, res, next) => {
 
         .then((popularProduct) => {
 
-          res.status(200).json({
-            popularProduct
-          });
+          res.status(200).json({ popularProduct });
+          
         })
 
         .catch((err) => {
