@@ -1,6 +1,7 @@
 const Product = require('../models/product')
 const fs = require('fs');
 const { drive, shareFiles } = require('../middlewares/gDrive.config');
+const productArchive = require('../models/productArchive');
 
 // Traitement avec l'API Google Drive
 async function upload(element, folderId) {
