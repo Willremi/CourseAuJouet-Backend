@@ -1,16 +1,14 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
-const productSchema = mongoose.Schema({
+const productArchiveSchema = mongoose.Schema({
     product_name: {
         type: String,
         required: true,
-        unique: true
     },
     reference: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     description: {
         type: String,
@@ -18,14 +16,6 @@ const productSchema = mongoose.Schema({
     },
     images: {
         type: [String],
-        required: true
-    },
-    driveFilesId: {
-        type: [String],
-        required: true
-    },
-    folderId: {
-        type: String,
         required: true
     },
     price: {
@@ -68,8 +58,12 @@ const productSchema = mongoose.Schema({
         type: Boolean,
         required: true
     },
+    previousId: {
+        type: String,
+        required: true
+    }
 })
 
-productSchema.plugin(uniqueValidator);
+productArchiveSchema.plugin(uniqueValidator);
 
-module.exports = mongoose.model('Products', productSchema);
+module.exports = mongoose.model('ProductArchive', productArchiveSchema);

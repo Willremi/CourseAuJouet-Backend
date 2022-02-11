@@ -14,7 +14,7 @@ exports.addOneSlideInCarousel = (req, res, next) => {
     })
 
     slide.save()
-        .then(carousel => res.status(201).json(carousel))
+        .then(carousel => res.status(200).json(carousel))
         .catch(error => res.status(500).json({error}))
 }
 

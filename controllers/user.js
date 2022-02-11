@@ -62,7 +62,7 @@ exports.verifyUser = (req, res, next) => {
   .then(() => {
     res.status(200).json({ message : "Merci de vous êtes inscrit sur notre site, vous pouvez à présent vous connecter a votre compte"})
   })
-  .catch( error => res.status(500).json({ message:"Votre code de confirmation est expiré" }))
+  .catch( () => res.status(500).json({ message:"Votre code de confirmation est expiré" }))
 }
 
 
@@ -88,15 +88,20 @@ exports.login = (req, res, next) => {
           res.status(200).json({
 
             id_token: jwt.sign({
-                userId: user._id,
-                firstName : user.firstname,
-                email: user.email,
-                role: user.role,
-                rememberMe: remember
-              },
-              'RANDOM_TOKEN_SECRET' ,{
-                expiresIn: `${remember ? '30d' : '1h'}`
-              }
+              userId: user._id,
+              civility: user.civility,
+              firstname: user.firstname,
+              lastname: user.lastname,
+              birthday_date: user.birthday_date,
+              phone: user.phone,
+              email: user.email,
+              role: user.role,
+              rememberMe: remember
+            },
+              'RANDOM_TOKEN_SECRET', {
+              expiresIn: `${remember ? '30d' : '1h'}`
+            }
+
             )
           });
         })
@@ -163,6 +168,38 @@ exports.validResetPassword = (req, res, next) => {
 
 }
 
+exports.editProfil = (req, res, next) => {
+
+  // mettre à jour les infos user
+
+  const { civility, firstName, lastName, birthday_date, phone, email } = req.body;
+  
+  User.findOneAndUpdate({ _id: req.params.id }, {
+    civility: civility,
+    firstname: firstName,
+    lastname: lastName,
+    birthday_date: birthday_date,
+    phone: phone,
+    email: email.toLowerCase(),
+  },
+
+  ).then(() => {
+    res.status(201).json({ message: "votre modification a bien été prise en compte" })
+  }).catch(error => {
+    if (error.codeName === 'DuplicateKey') {
+      res.status(400).json({
+        message: "Un utilisateur avec cet adresse électronique s'est déjà inscrit. Veuillez utiliser un autre email..."
+      })
+    } else {
+      res.status(500).json({
+        message: "Une erreur est survenu, si le problème persiste. Contactez l'administrateur du site"
+      })
+
+    }
+  });
+
+}
+
 exports.getOneUser = (req, res, next) => {
   User.findOne({ _id: req.params.id})
   .then((user) => {
@@ -175,7 +212,7 @@ exports.getOneUser = (req, res, next) => {
   })
   .catch(() => res.status(500).json({ message : "une erreur est survenue"}))
 }
-exports.googleAuth = (req, res) =>{
+exports.googleAuth = (req, res) => {
   
   const token = jwt.sign({
     email: req.body.email.toLowerCase()
@@ -279,4 +316,57 @@ exports.facebookAuth = (req, res) =>{
       }
     })
     .catch(error => res.status(400).json({message: error}))
+
+}
+exports.editProfil = (req, res, next) => {
+
+  // mettre à jour les infos user
+
+  const { civility, firstName, lastName, birthday_date, phone, email } = req.body;
+  
+  User.findOneAndUpdate({ _id: req.params.id }, {
+    civility: civility,
+    firstname: firstName,
+    lastname: lastName,
+    birthday_date: birthday_date,
+    phone: phone,
+    email: email.toLowerCase(),
+  },
+
+  ).then(() => {
+    res.status(201).json({ message: "votre modification a bien été prise en compte" })
+  }).catch(error => {
+    if (error.codeName === 'DuplicateKey') {
+      res.status(400).json({
+        message: "Un utilisateur avec cet adresse électronique s'est déjà inscrit. Veuillez utiliser un autre email..."
+      })
+    } else {
+      res.status(500).json({
+        message: "Une erreur est survenu, si le problème persiste. Contactez l'administrateur du site"
+      })
+
+    }
+  });
+}
+
+exports.changePassword = async (req, res) =>  {
+  //req.body est un tableau: [0] = userId et [1] = form de changement de MDP
+  const newPassword = await bcrypt.hash(req.body[1].password, 10);
+  User.findById( req.body[0] )
+  .then( user => {
+    if(!user){
+      return res.status(401).json({message: 'utilisateur non trouvé'})
+    }
+    bcrypt.compare(req.body[1].oldPassword,user.password)
+    .then(valid => {
+      if (!valid) {
+        return res.status(401).json({message: "Le mot de passe est incorrect"})
+      } else {
+        User.findByIdAndUpdate(req.body[0], {
+          password: newPassword
+        })
+        .then(res.status(200).json({message: "Le mot de passe mis à jour"}))                   
+      }
+    }).catch(error => res.status(400).json({message: error}))
+  }).catch(error => res.status(400).json({message: error}))
 }
