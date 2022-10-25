@@ -1,4 +1,5 @@
 # back_end
+Projet venant de Gitlab  
 # Commande pour lancer le serveur stripe pour sécuriser les paiements:
 d'abord verifiez bien que vous avez stripe.exe dans votre dossier sinon téléchargez le ici :
 
